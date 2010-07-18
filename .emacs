@@ -16,13 +16,14 @@
   (color-theme-install
    '(color-theme-hash
       ((background-color . "#111111")
-      (background-mode . black)
+      (background-mode . dark)
       (border-color . "#000000")
       (cursor-color . "#ddffdd")
       (foreground-color . "#cccccc")
       (mouse-color . "black"))
      (fringe ((t (:background "#111111"))))
-     (mode-line ((t (:foreground "#666666" :background "#2e2e2e"))))
+     (mode-line ((t (:foreground "#666666" :background "#222222"))))
+     (mode-line-inactive ((t (:foreground "#222222" :background "#111111" :box (:color "black")))))
      (region ((t (:background "#383838"))))
      (font-lock-builtin-face ((t (:foreground "#82b8f2"))))
      (font-lock-comment-face ((t (:foreground "#4b4b4b" :italic t))))
@@ -91,16 +92,40 @@
 (global-linum-mode t) ; Show line numbers
 (show-paren-mode t) ; Show matching parens
 
+(setq pop-up-windows nil)
+
 ;; Global keybindings
 
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "M-\\") 'align-regexp)
 (global-set-key (kbd "M-/") 'hippie-expand)
 
-;; ctrl-tab,ctrl-shift-tab to move between bufffers
-(global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
-(add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "<C-tab>") 'tabbar-forward-tab)))
-(global-set-key (kbd "<C-S-iso-lefttab>") 'tabbar-backward-tab)
+(defun google-word-at-point ()
+  (interactive)
+  (browse-url (concat "http://google.com/search?btnI&q=" (current-word))))
+
+(global-set-key (kbd "<f1>") 'google-word-at-point)
+
+(setq compilation-read-command nil)
+(global-set-key (kbd "<f5>") 'smart-compile)
+
+;; ctrl-tab,ctrl-shift-tab to move between buffers/windows
+(defun switch-tab-or-window-forward ()
+  (interactive)
+  (if (one-window-p)
+      (tabbar-forward-tab)
+    (other-window 1)))
+
+(defun switch-tab-or-window-backward ()
+  (interactive)
+  (if (one-window-p)
+      (tabbar-backward-tab)
+    (other-window -1)))
+
+(global-set-key (kbd "<C-tab>") 'switch-tab-or-window-forward)
+(add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "<C-tab>") 'switch-tab-or-window-forward)))
+(global-set-key (kbd "<C-S-iso-lefttab>") 'switch-tab-or-window-backward)
+(global-set-key (kbd "<C-f4>") 'delete-window)
 
 (global-set-key "\C-x\C-c"
 		(lambda ()
@@ -130,7 +155,7 @@
 (load "nxhtml/autostart")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku smart-compile))
   (require lib))
 
 ; Apply my minor modes and custom font locks after a mode change
