@@ -43,6 +43,15 @@
      (minibuffer-prompt ((t (:foreground "#85c0ff" :bold t))))
      (font-lock-warning-face ((t (:foreground "#ddbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
+     (org-link ((t (:foreground "#88bbff"))))
+     (org-date ((t (:foreground "#88bbff"))))
+     (org-level-1 ((t (:foreground "#dddddd" :bold t))))
+     (org-level-2 ((t (:foreground "#aaaaaa"))))
+     (org-level-3 ((t (:foreground "#aaaaaa"))))
+     (org-level-4 ((t (:foreground "#aaaaaa"))))
+     (org-tag ((t (:foreground "#dddda0"))))
+     (org-todo ((t (:foreground "#ddbbbb" :bold t))))
+     (org-done ((t (:foreground "#44ff88" :bold t))))
     )))
 
 (require 'color-theme)
@@ -65,7 +74,13 @@
 (delete-selection-mode t)
 
 (setq require-final-newline t)
-(setq auto-save-default nil) ; Get rid of ugly # backup # files
+(setq auto-save-default nil) ; Get rid of ugly #backup# files
+
+(setq vc-follow-symlinks t)
+
+(setq-default c-basic-offset 8)
+(setq-default tab-width 8)
+(setq-default indent-tabs-mode nil)
 
 (setq read-file-name-completion-ignore-case t)
 
@@ -100,13 +115,22 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
+(global-set-key (kbd "C-c a") 'org-agenda)
+(setq org-agenda-files '("/host/todo.org"))
+
+(appt-activate 1) ; Enable appointment notification
+(run-at-time nil 300
+             (lambda ()
+               (setq appt-time-msg-list nil)
+               (org-agenda-to-appt))) ; Update every 5 minutes.. overkill?
+
 ;; Load some libraries
 
 ; nXhtml
 (load "nxhtml/autostart")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku))
   (require lib))
 
 ; Apply my minor modes and custom font locks after a mode change
@@ -116,13 +140,14 @@
 	    (progn
 	      (rainbow-mode 1)
 	      (lambda-mode 1)
-	      (iimage-mode 1)
 	      (autopair-mode 1)
 	      (font-lock-add-keywords
                nil
                '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" . 'font-lock-operator-face)
 		 ("!" . 'font-lock-negation-char-face)
 		 ("(\\|)\\|{\\|}\\[\\|\\]" . 'font-lock-paren-face))))))
+
+(add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
 
 ; Set up the tabbar how I like it
 (setq tabbar-buffer-groups-function
@@ -138,7 +163,6 @@
 
 ; Set up IRC
 (setq rcirc-default-nick "Hash")
-;(rcirc-connect "irc.demonastery.org")
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -163,5 +187,5 @@
  '(mumamo-background-chunk-submode4 ((((class color) (min-colors 88) (background dark)) nil)))
  '(tabbar-button ((t (:inherit tabbar-default :foreground "grey30"))))
  '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey40" :height 0.9))))
- '(tabbar-selected ((t (:inherit tabbar-default :foreground "grey80" :box (:line-width 5 :color "black")))))
- '(tabbar-unselected ((t (:inherit tabbar-default :box (:line-width 5 :color "black"))))))
+ '(tabbar-selected ((t (:inherit tabbar-default :bold t :foreground "grey80" :box (:line-width 6 :color "black")))))
+ '(tabbar-unselected ((t (:inherit tabbar-default :box (:line-width 6 :color "black"))))))
