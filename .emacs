@@ -22,8 +22,8 @@
       (foreground-color . "#cccccc")
       (mouse-color . "black"))
      (fringe ((t (:background "#111111"))))
-     (mode-line ((t (:foreground "#666666" :background "#222222"))))
-     (mode-line-inactive ((t (:foreground "#222222" :background "#111111" :box (:color "black")))))
+     (mode-line ((t (:foreground "#666666" :background "#222222" :box (:color "#181818")))))
+     (mode-line-inactive ((t (:foreground "#222222" :background "#111111" :box (:color "#080808")))))
      (region ((t (:background "#383838"))))
      (font-lock-builtin-face ((t (:foreground "#82b8f2"))))
      (font-lock-comment-face ((t (:foreground "#4b4b4b" :italic t))))
@@ -53,6 +53,7 @@
      (org-tag ((t (:foreground "#dddda0"))))
      (org-todo ((t (:foreground "#ddbbbb" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
+     (eshell-prompt ((t (:foreground "#444444"))))
     )))
 
 (require 'color-theme)
@@ -64,8 +65,9 @@
 (setq initial-scratch-message nil)
 (setq-default truncate-lines t)
 (setq visible-bell t)
-(setq browse-url-generic-program "chromium-browser"
-      browse-url-browser-function 'browse-url-generic)
+(if (eq system-type 'gnu/linux)
+    (setq browse-url-generic-program "chromium-browser"
+          browse-url-browser-function 'browse-url-generic))
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (setq frame-title-format '(buffer-file-name "%f" ("%b")))
@@ -76,6 +78,7 @@
 
 (setq require-final-newline t)
 (setq auto-save-default nil) ; Get rid of ugly #backup# files
+(setq backup-directory-alist '(("" . "~/.emacs.d/emacs-backup")))
 
 (setq vc-follow-symlinks t)
 
@@ -100,11 +103,22 @@
 (global-set-key (kbd "M-\\") 'align-regexp)
 (global-set-key (kbd "M-/") 'hippie-expand)
 
+;; Google!
+
+(defun google (query)
+  (interactive "sGoogle: ")
+  (browse-url (concat "http://google.com/search?q=" query)))
+
+(defun google-im-feeling-lucky (query)
+  (interactive "sGoogle: ")
+  (browse-url (concat "http://google.com/search?btnI&q=" query)))
+
 (defun google-word-at-point ()
   (interactive)
-  (browse-url (concat "http://google.com/search?btnI&q=" (current-word))))
+  (google-im-feeling-lucky (current-word)))
 
 (global-set-key (kbd "<f1>") 'google-word-at-point)
+(global-set-key (kbd "<f2>") (lambda () (interactive) (call-interactively 'google)))
 
 (setq compilation-read-command nil)
 (global-set-key (kbd "<f5>") 'smart-compile)
@@ -125,6 +139,7 @@
 (global-set-key (kbd "<C-tab>") 'switch-tab-or-window-forward)
 (add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "<C-tab>") 'switch-tab-or-window-forward)))
 (global-set-key (kbd "<C-S-iso-lefttab>") 'switch-tab-or-window-backward)
+(global-set-key (kbd "<C-S-tab>") 'switch-tab-or-window-backward)
 (global-set-key (kbd "<C-f4>") 'delete-window)
 
 (global-set-key "\C-x\C-c"
@@ -141,7 +156,10 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
 (global-set-key (kbd "C-c a") 'org-agenda)
-(setq org-agenda-files '("/host/todo.org"))
+
+(if (eq system-type 'windows-nt)
+    (setq org-agenda-files '("~/todo.org"))
+  (setq org-agenda-files '("/host/todo.org")))
 
 (appt-activate 1) ; Enable appointment notification
 (run-at-time nil 300
@@ -153,6 +171,9 @@
 
 ; nXhtml
 (load "nxhtml/autostart")
+
+(if (eq system-type 'windows-nt)
+    (setq todochiku-command ""))
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku smart-compile))
@@ -170,7 +191,7 @@
                nil
                '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" . 'font-lock-operator-face)
 		 ("!" . 'font-lock-negation-char-face)
-		 ("(\\|)\\|{\\|}\\[\\|\\]" . 'font-lock-paren-face))))))
+		 ("(\\|)\\|{\\|}\\|\\[\\|\\]" . 'font-lock-paren-face))))))
 
 (add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
 
