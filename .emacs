@@ -5,7 +5,7 @@
 (add-to-list 'load-path "~/.emacs.d")
 
 ; Clean up the window a bit
-(menu-bar-mode -1)
+;(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (setq initial-frame-alist '((width . 100) (height . 50))) ; Set frame width/height
@@ -15,18 +15,18 @@
   (interactive)
   (color-theme-install
    '(color-theme-hash
-      ((background-color . "#111111")
+      ((background-color . "#181818")
       (background-mode . dark)
       (border-color . "#000000")
       (cursor-color . "#ddffdd")
       (foreground-color . "#cccccc")
       (mouse-color . "black"))
-     (fringe ((t (:background "#111111"))))
-     (mode-line ((t (:foreground "#666666" :background "#222222" :box (:color "#181818")))))
-     (mode-line-inactive ((t (:foreground "#222222" :background "#111111" :box (:color "#080808")))))
+     (fringe ((t (:background "#181818"))))
+     (mode-line ((t (:foreground "#aaaaaa" :background "#333333" :box (:color "#181818")))))
+     (mode-line-inactive ((t (:foreground "#333333" :background "#111111" :box (:color "#080808")))))
      (region ((t (:background "#383838"))))
      (font-lock-builtin-face ((t (:foreground "#82b8f2"))))
-     (font-lock-comment-face ((t (:foreground "#4b4b4b" :italic t))))
+     (font-lock-comment-face ((t (:foreground "#8d6d6d" :italic t))))
      (font-lock-comment-delimiter-face ((t (:foreground "#2b2b2b"))))
      (font-lock-constant-face ((t (:foreground "#6a88d7"))))
      (font-lock-doc-string-face ((t (:foreground "#2b2b2b" :italic t))))
@@ -40,19 +40,21 @@
      (font-lock-string-face ((t (:foreground "#cb99e1"))))
      (font-lock-type-face ((t (:foreground"#b7e234" :bold t))))
      (font-lock-variable-name-face ((t (:foreground "#888888"))))
-     (font-lock-paren-face ((t (:foreground "grey30"))))
+     (font-lock-paren-face ((t (:foreground "#555555"))))
      (minibuffer-prompt ((t (:foreground "#85c0ff" :bold t))))
      (font-lock-warning-face ((t (:foreground "#ddbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
-     (org-link ((t (:foreground "#88bbff"))))
+     (org-link ((t (:foreground "#7788aa"))))
      (org-date ((t (:foreground "#88bbff"))))
+     (org-agenda-date ((t (:foreground "#88bbff"))))
      (org-level-1 ((t (:foreground "#dddddd" :bold t))))
      (org-level-2 ((t (:foreground "#aaaaaa"))))
-     (org-level-3 ((t (:foreground "#aaaaaa"))))
-     (org-level-4 ((t (:foreground "#aaaaaa"))))
+     (org-level-3 ((t (:foreground "#777777"))))
+     (org-level-4 ((t (:foreground "#555555"))))
      (org-tag ((t (:foreground "#dddda0"))))
      (org-todo ((t (:foreground "#ddbbbb" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
+     (org-warning ((t (:foreground "#775555" :italic t))))
      (eshell-prompt ((t (:foreground "#444444"))))
     )))
 
@@ -88,8 +90,9 @@
 
 (setq read-file-name-completion-ignore-case t)
 
-(column-number-mode t) ; Show column number in modeline
 (desktop-save-mode t) ; Save buffers to desktop file
+(setq display-time-string-forms
+      '((concat " " 12-hours ":" minutes " ")))
 (display-time-mode t) ; Show time in modeline
 (setq linum-format "%4d ")
 (global-linum-mode t) ; Show line numbers
@@ -157,15 +160,46 @@
 
 (global-set-key (kbd "C-c a") 'org-agenda)
 
-(if (eq system-type 'windows-nt)
-    (setq org-agenda-files '("~/todo.org"))
-  (setq org-agenda-files '("/host/todo.org")))
+(setq default-mode-line-format
+      (quote
+       (""
+        global-mode-string
+        mode-line-frame-identification
+        mode-line-buffer-identification
+        default-directory
+        "   "
+        (:propertize mode-name help-echo (format-mode-line minor-mode-alist))
+        mode-line-process
+        "   "
+        (-3 . "%P")
+        "   "
+        (:propertize urgent-org-mode-line face 'org-warning)
+        "   "
+        "-%-"
+        )))
+
+(setq org-agenda-files '("~/todo.org"))
 
 (appt-activate 1) ; Enable appointment notification
-(run-at-time nil 300
-             (lambda ()
-               (setq appt-time-msg-list nil)
-               (org-agenda-to-appt))) ; Update every 5 minutes.. overkill?
+
+(defun update-org ()
+  "Update org-mode related stuff, appointments, modeline etc"
+  (setq urgent-org-mode-line
+        (mapconcat 'identity
+                   (org-map-entries
+                    (lambda ()
+                      (nth 4 (org-heading-components)))
+                    "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", "))
+  (setq appt-time-msg-list nil)
+  (org-agenda-to-appt)
+  nil)
+
+(run-at-time nil 300 'update-org)
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (variable-pitch-mode t)
+            (add-hook 'local-write-file-hooks 'update-org)))
 
 ;; Load some libraries
 
@@ -194,6 +228,9 @@
 		 ("(\\|)\\|{\\|}\\|\\[\\|\\]" . 'font-lock-paren-face))))))
 
 (add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
+(add-hook 'mail-mode-hook (lambda ()
+                            (variable-pitch-mode t)
+                            (setq truncate-lines nil)))
 
 ; Set up the tabbar how I like it
 (setq tabbar-buffer-groups-function
@@ -210,6 +247,8 @@
 ; Set up IRC
 (setq rcirc-default-nick "Hash")
 
+;; Custom set variables
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -225,6 +264,7 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(default ((t (:height 107 :foundry "microsoft" :family "Consolas"))))
+ '(variable-pitch ((t (:height 107  :foundry "microsoft" :family "Corbel"))))
  '(linum ((t (:inherit (shadow default) :foreground "grey30"))))
  '(mumamo-background-chunk-major ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode1 ((((class color) (min-colors 88) (background dark)) nil)))
@@ -232,6 +272,9 @@
  '(mumamo-background-chunk-submode3 ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode4 ((((class color) (min-colors 88) (background dark)) nil)))
  '(tabbar-button ((t (:inherit tabbar-default :foreground "grey30"))))
- '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey40" :height 0.9))))
+ '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey40" :height 1.1))))
  '(tabbar-selected ((t (:inherit tabbar-default :bold t :foreground "grey80" :box (:line-width 6 :color "black")))))
  '(tabbar-unselected ((t (:inherit tabbar-default :box (:line-width 6 :color "black"))))))
+
+;; Start Emacs Server
+(server-start)
