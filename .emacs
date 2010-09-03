@@ -67,9 +67,12 @@
 (setq initial-scratch-message nil)
 (setq-default truncate-lines t)
 (setq visible-bell t)
-(if (eq system-type 'gnu/linux)
-    (setq browse-url-generic-program "chromium-browser"
-          browse-url-browser-function 'browse-url-generic))
+(setq ring-bell-function (lambda () ()))
+
+;(if (eq system-type 'gnu/linux)
+;    (setq browse-url-generic-program "chromium-browser"
+;          browse-url-browser-function 'browse-url-generic))
+
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (setq frame-title-format '(buffer-file-name "%f" ("%b")))
@@ -99,6 +102,11 @@
 (show-paren-mode t) ; Show matching parens
 
 (setq pop-up-windows nil)
+
+(require 'uniquify)
+(setq 
+ uniquify-buffer-name-style 'reverse
+ uniquify-separator ":")
 
 ;; Global keybindings
 
@@ -210,7 +218,7 @@
     (setq todochiku-command ""))
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku smart-compile))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair ido-mode todochiku smart-compile))
   (require lib))
 
 ; Apply my minor modes and custom font locks after a mode change
@@ -231,6 +239,15 @@
 (add-hook 'mail-mode-hook (lambda ()
                             (variable-pitch-mode t)
                             (setq truncate-lines nil)))
+
+(autoload 'geben "geben" "PHP Debugger on Emacs" t)
+
+;(autoload 'moz-minor-mode "moz" "Mozilla Minor and Inferior Mozilla Modes" t)
+; 
+;(add-hook 'espresso-mode-hook 'espresso-custom-setup)
+;(defun espresso-custom-setup ()
+;  (moz-minor-mode 1))
+
 
 ; Set up the tabbar how I like it
 (setq tabbar-buffer-groups-function
