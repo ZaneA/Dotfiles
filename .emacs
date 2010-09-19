@@ -68,10 +68,7 @@
 (setq-default truncate-lines t)
 (setq visible-bell t)
 (setq ring-bell-function (lambda () ()))
-
-;(if (eq system-type 'gnu/linux)
-;    (setq browse-url-generic-program "chromium-browser"
-;          browse-url-browser-function 'browse-url-generic))
+(setq mouse-autoselect-window t)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -102,11 +99,6 @@
 (show-paren-mode t) ; Show matching parens
 
 (setq pop-up-windows nil)
-
-(require 'uniquify)
-(setq 
- uniquify-buffer-name-style 'reverse
- uniquify-separator ":")
 
 ;; Global keybindings
 
@@ -217,8 +209,14 @@
 (if (eq system-type 'windows-nt)
     (setq todochiku-command ""))
 
+; Uniquify
+(setq 
+ uniquify-buffer-name-style 'reverse
+ uniquify-separator ":")
+
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku smart-compile))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso
+               autopair todochiku smart-compile uniquify))
   (require lib))
 
 ; Apply my minor modes and custom font locks after a mode change
@@ -235,7 +233,8 @@
 		 ("!" . 'font-lock-negation-char-face)
 		 ("(\\|)\\|{\\|}\\|\\[\\|\\]" . 'font-lock-paren-face))))))
 
-(add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
+(add-hook 'css-mode-hook (lambda ()
+                           (iimage-mode 1)))
 (add-hook 'mail-mode-hook (lambda ()
                             (variable-pitch-mode t)
                             (setq truncate-lines nil)))
