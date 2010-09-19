@@ -218,7 +218,7 @@
     (setq todochiku-command ""))
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair ido-mode todochiku smart-compile))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso autopair todochiku smart-compile))
   (require lib))
 
 ; Apply my minor modes and custom font locks after a mode change
@@ -280,8 +280,8 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:height 107 :foundry "microsoft" :family "Consolas"))))
- '(variable-pitch ((t (:height 107  :foundry "microsoft" :family "Corbel"))))
+ '(default ((t (:height 100 :foundry "microsoft" :family "Consolas"))))
+ '(variable-pitch ((t (:height 100  :foundry "microsoft" :family "Corbel"))))
  '(linum ((t (:inherit (shadow default) :foreground "grey30"))))
  '(mumamo-background-chunk-major ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode1 ((((class color) (min-colors 88) (background dark)) nil)))

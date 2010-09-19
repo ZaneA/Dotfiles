@@ -29,7 +29,7 @@ parse_git_dirty () {
 setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslastprompt listtypes print_exit_value prompt_subst
 
 # Set up PATH
-PATH=$PATH:~/bin/:~/Documents/bin/
+PATH=$PATH:~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/
 
 # Handy aliases
 alias ls='ls --color=auto -FC' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
