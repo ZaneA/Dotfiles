@@ -47,8 +47,8 @@
      (org-link ((t (:foreground "#7788aa"))))
      (org-date ((t (:foreground "#88bbff"))))
      (org-agenda-date ((t (:foreground "#88bbff"))))
-     (org-level-1 ((t (:foreground "#dddddd" :bold t))))
-     (org-level-2 ((t (:foreground "#aaaaaa"))))
+     (org-level-1 ((t (:foreground "#dddddd" :bold t :height 1.3))))
+     (org-level-2 ((t (:foreground "#aaaaaa" :height 1.2))))
      (org-level-3 ((t (:foreground "#777777"))))
      (org-level-4 ((t (:foreground "#555555"))))
      (org-tag ((t (:foreground "#dddda0"))))
@@ -99,6 +99,8 @@
 (show-paren-mode t) ; Show matching parens
 
 (setq pop-up-windows nil)
+
+(setq scheme-program-name "csi -:c")
 
 ;; Global keybindings
 
@@ -219,19 +221,20 @@
                autopair todochiku smart-compile uniquify))
   (require lib))
 
+(defun my-after-change-major-mode-hook ()
+  "Apply my minor modes and custom font locks"
+  (progn
+    (rainbow-mode 1)
+    (lambda-mode 1)
+    (autopair-mode 1)
+    (font-lock-add-keywords
+     nil
+     '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" . 'font-lock-operator-face)
+       ("!" . 'font-lock-negation-char-face)
+       ("(\\|)\\|{\\|}\\|\\[\\|\\]" . 'font-lock-paren-face)))))
+
 ; Apply my minor modes and custom font locks after a mode change
-(add-hook 'after-change-major-mode-hook
-          (lambda ()
-	    "Apply my minor modes and custom font locks"
-	    (progn
-	      (rainbow-mode 1)
-	      (lambda-mode 1)
-	      (autopair-mode 1)
-	      (font-lock-add-keywords
-               nil
-               '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" . 'font-lock-operator-face)
-		 ("!" . 'font-lock-negation-char-face)
-		 ("(\\|)\\|{\\|}\\|\\[\\|\\]" . 'font-lock-paren-face))))))
+(add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
 
 (add-hook 'css-mode-hook (lambda ()
                            (iimage-mode 1)))
@@ -280,7 +283,7 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(default ((t (:height 100 :foundry "microsoft" :family "Consolas"))))
- '(variable-pitch ((t (:height 100  :foundry "microsoft" :family "Corbel"))))
+ '(variable-pitch ((t (:height 100 :foundry "microsoft" :family "Corbel"))))
  '(linum ((t (:inherit (shadow default) :foreground "grey30"))))
  '(mumamo-background-chunk-major ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode1 ((((class color) (min-colors 88) (background dark)) nil)))
