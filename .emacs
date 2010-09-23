@@ -40,7 +40,7 @@
      (font-lock-string-face ((t (:foreground "#cb99e1"))))
      (font-lock-type-face ((t (:foreground"#b7e234" :bold t))))
      (font-lock-variable-name-face ((t (:foreground "#888888"))))
-     (font-lock-paren-face ((t (:foreground "#555555"))))
+     (font-lock-paren-face ((t (:foreground "#555555" :bold t))))
      (minibuffer-prompt ((t (:foreground "#85c0ff" :bold t))))
      (font-lock-warning-face ((t (:foreground "#ddbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
@@ -241,6 +241,18 @@
 (add-hook 'mail-mode-hook (lambda ()
                             (variable-pitch-mode t)
                             (setq truncate-lines nil)))
+
+(defun my-scheme-mode-hook ()
+  "Apply scheme mode stuff"
+  (define-key scheme-mode-map [f1]
+    '(lambda ()
+       (interactive)
+       (ignore-errors
+         (let ((symbol (thing-at-point 'symbol)))
+           (info "(r5rs)")
+           (Info-index symbol))))))
+
+(add-hook 'scheme-mode-hook 'my-scheme-mode-hook)
 
 (autoload 'geben "geben" "PHP Debugger on Emacs" t)
 
