@@ -3,8 +3,9 @@
 ;;; Zanes wmii config, in chicken scheme
 ;;; Modified from the wmii egg example
 
-(require-library wmiirc srfi-18)
-(import scheme chicken (prefix wmiirc wmii:) srfi-18)
+(require-library wmiirc srfi-18 posix regex regex-literals)
+(import scheme chicken (prefix wmiirc wmii:) srfi-18 posix regex regex-literals)
+
 
 (wmii:connect)
 
@@ -59,7 +60,29 @@
              (close-input-port in)
              (and (string? chosen) chosen))))
 
-(define (run . args) (process-wait (process-fork (lambda () (apply process-run args)))))
+; Start a process in the background
+(define (fork-run . args)
+  (process-wait (process-fork (lambda () (apply process-run args)))))
+
+; Start a process and return its output
+(define (shell args)
+  (call-with-input-pipe args (lambda (i) (read-lines i))))
+
+; Run macro using above shell function
+(define-syntax run
+  (syntax-rules (as on)
+    [(run command as username on machine)
+     (let ([matches (string-match #/(.*?):(.+)/ machine)])
+       (if (list? matches)
+           (shell (format "ssh -C -p ~a ~a@~a ~a"
+                           (nth 2 matches) ; Port
+                           username
+                           (nth 1 matches) ;Machine
+                           command))))]
+    [(run command on machine)
+     (run command as (getenv "USERNAME") on machine)]
+    [(run command)
+     (shell command)]))
 
 (define status
   (let ((status-thread #f))
@@ -159,9 +182,9 @@
    ; Other menus/running stuff
    ((key ,modkey "p")
     . ,(lambda _
-         (and-let* ((program (wimenu programs))) (run program))))
+         (and-let* ((program (wimenu programs))) (fork-run program))))
    ((key ,modkey "Return")
-    . ,(lambda _ (run wmii-term)))
+    . ,(lambda _ (fork-run wmii-term)))
 
    ; Tagging
    ((key ,modkey "t")
