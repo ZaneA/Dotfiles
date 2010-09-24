@@ -31,7 +31,7 @@
 
 (wmii:colrules-set!
  `(("gimp"   . (17 83 41))
-   ("*"      . (62 38))))
+   (".*"     . (62 38))))
 
 (wmii:tagrules-set!
  `(("XMMS.*"    . "~")
@@ -145,17 +145,16 @@
            (cond
             ((string=? action "reload") (wmii:exec (format "wmii -r ~a/.wmii/wmiirc.scm" (getenv "HOME"))))
             ((string=? action "rehash") (update-programs))
-            ((string-prefix? "exec " action)
-             (wmii:exec (string-drop action 5)))
+            ((string-prefix? "exec " action) (wmii:exec (string-drop action 5)))
             ((string=? action "status") (status))
-            ((string=? action "quit")
-             (wmii:quit)
-             (exit))))))
+            ((string=? action "quit") (wmii:quit) (exit))))))
 
    ; Eval :D
    ((key ,modkey "Shift" "colon")
     . ,(lambda _
-         (and-let* ((input (wimenu `("")))) (eval (with-input-from-string input read)))))
+         (and-let* ((input (wimenu `(""))))
+                   (wmii:write-tab "lbar" "eval"
+                   (format "~s" (eval (with-input-from-string input read)))))))
 
    ; Other menus/running stuff
    ((key ,modkey "p")
