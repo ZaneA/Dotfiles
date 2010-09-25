@@ -20,11 +20,12 @@
     (left  . "h")
     (right . "l")))
 
-(define wmii-normcolors  '(#xbbbbbb #x222222 #x000000))
-(define wmii-focuscolors '(#xeeeeee #x506070 #x708090))
-(define wmii-background #x000000)
-(define wmii-font "xft:Droid Sans-10")
-(define wmii-border "3")
+(define wmii-normcolors  '(#xf6f3e8 #x242424 #x303030))
+(define wmii-focuscolors '(#x000000 #xcae682 #x303030))
+(define wmii-font "xft:Terminus-8")
+(define wmii-colmode "default")
+(define wmii-barposition "on bottom")
+(define wmii-floatborder "3")
 (define wmii-term "urxvt")
 
 
@@ -35,18 +36,24 @@
    (".*"     . (62 38))))
 
 (wmii:tagrules-set!
- `(("XMMS.*"    . "~")
-   ("MPlayer.*" . "~")
-   ("VLC.*"     . "~")
-   (".*"        . "sel")
-   (".*"        . "1")))
+ `(("Quod Libet.*" . "Music")
+   ("MPlayer.*"    . ("1+Video" "~"))
+   ("VLC.*"        . ("1+Video" "~"))
+   ("Totem.*"      . ("1+Video" "~"))
+   ("Emacs.*"      . "1+Emacs")
+   ("Firefox.*"    . "1+Web")
+   ("Vimperator.*" . "1+Web")
+   (".*"           . "sel")
+   (".*"           . "1")))
 
 (wmii:global-settings-set!
- `((font . ,wmii-font)
+ `((font        . ,wmii-font)
    (focuscolors . ,wmii-focuscolors)
-   (normcolors . ,wmii-normcolors)
-   (grabmod . ,modkey)
-   (border . ,wmii-border)))
+   (normcolors  . ,wmii-normcolors)
+   (grabmod     . ,modkey)
+   (colmode     . ,wmii-colmode)
+   (bar         . ,wmii-barposition)
+   (border      . ,wmii-floatborder)))
 
 
 ;;; Function definitions
