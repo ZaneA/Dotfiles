@@ -43,6 +43,7 @@
    ("Emacs.*"      . "1+Emacs")
    ("Firefox.*"    . "1+Web")
    ("Vimperator.*" . "1+Web")
+   ("urxvt.*"      . "1+Term")
    (".*"           . "sel")
    (".*"           . "1")))
 

@@ -25,6 +25,15 @@ parse_git_dirty () {
         fi
 }
 
+# Command in window title
+case $TERM in
+    rxvt*|xterm*)
+        preexec () {
+            print -Pn "\e]0;$1\a"
+        }
+    ;;
+esac
+
 # Options
 setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslastprompt listtypes print_exit_value prompt_subst
 
