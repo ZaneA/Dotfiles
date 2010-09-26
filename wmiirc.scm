@@ -28,6 +28,8 @@
 (define wmii-floatborder "3")
 (define wmii-term "urxvt")
 
+(define wmii-evalcolors '(#xaa8888 #x242424 #x242424))
+
 (define status-bars
   `((a (with-input-from-pipe "nyxmms2 status" read-string) (#xcae682 #x242424 #x242424))
     (b (with-input-from-pipe "date" read-string) (#xaaaaaa #x242424 #x242424))))
@@ -194,7 +196,8 @@
     . ,(lambda _
          (and-let* ((input (wimenu `(""))))
                    (wmii:write-tab "lbar" "eval"
-                   (format "~s" (eval (with-input-from-string input read)))))))
+                   (format "~s" (eval (with-input-from-string input read)))
+                   wmii-evalcolors))))
 
    ; Other menus/running stuff
    ((key ,modkey "p")
