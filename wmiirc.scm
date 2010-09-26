@@ -30,9 +30,16 @@
 
 (define wmii-evalcolors '(#xaa8888 #x242424 #x242424))
 
+(define fork-run #f) ; Forward decl
+(define shell #f) ; Forward decl
+
 (define status-bars
-  `((a (with-input-from-pipe "nyxmms2 status" read-string) (#xcae682 #x242424 #x242424))
-    (b (with-input-from-pipe "date" read-string) (#xaaaaaa #x242424 #x242424))))
+  `((a-music (string-join (shell "nyxmms2 status"))
+             (fork-run "abraca") ; Eval'd on click
+             (#xcae682 #x242424 #x242424))
+    (b-date (string-join (shell "date"))
+            #f
+            (#xaaaaaa #x242424 #x242424))))
 
 
 ;;; Rule config
@@ -112,8 +119,8 @@
 		(let loop ()
                   (for-each
                    (lambda (bar)
-                     (wmii:write-tab "rbar" (nth 0 bar) (string-trim-both (eval (nth 1 bar))) (nth 2 bar)))
-                   (append status-bars `((0 "" ,wmii-normcolors))))
+                     (wmii:write-tab "rbar" (nth 0 bar) (string-trim-both (eval (nth 1 bar))) (nth 3 bar)))
+                   (append status-bars `((0 "" #f ,wmii-normcolors))))
 		  (thread-sleep! 1)
 		  (loop)))))))))
 
@@ -161,6 +168,9 @@
     . ,(lambda (event tag client?) (wmii:write-tab "lbar" tag tag)))
    (left-bar-click
     . ,(lambda (event button tab) (wmii:goto-tag tab)))
+   (right-bar-click
+    . ,(lambda (event button tab)
+         (eval (nth 2 (assoc (string->symbol tab) status-bars)))))
 
    ;; Key Events
 
