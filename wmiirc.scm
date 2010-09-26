@@ -3,8 +3,8 @@
 ;;; Zanes wmii config, in chicken scheme
 ;;; Modified from the wmii egg example
 
-(require-library wmiirc srfi-18 posix regex regex-literals)
-(import scheme chicken (prefix wmiirc wmii:) srfi-18 posix regex regex-literals)
+(require-library wmiirc srfi-18 posix regex regex-literals srfi-13)
+(import scheme chicken (prefix wmiirc wmii:) srfi-18 posix regex regex-literals srfi-13)
 
 
 (wmii:connect)
@@ -28,6 +28,10 @@
 (define wmii-floatborder "3")
 (define wmii-term "urxvt")
 
+(define status-bars
+  `((a (with-input-from-pipe "nyxmms2 status" read-string) (#xcae682 #x242424 #x242424))
+    (b (with-input-from-pipe "date" read-string) (#xaaaaaa #x242424 #x242424))))
+
 
 ;;; Rule config
 
@@ -36,16 +40,13 @@
    (".*"     . (62 38))))
 
 (wmii:tagrules-set!
- `(("Quod Libet.*" . "Music")
-   ("MPlayer.*"    . ("1+Video" "~"))
-   ("VLC.*"        . ("1+Video" "~"))
-   ("Totem.*"      . ("1+Video" "~"))
-   ("Emacs.*"      . "1+Emacs")
-   ("Firefox.*"    . "1+Web")
-   ("Vimperator.*" . "1+Web")
-   ("urxvt.*"      . "1+Term")
-   (".*"           . "sel")
-   (".*"           . "1")))
+ `(("Quod Libet.*"       . "Music")
+   ("MPlayer|VLC|Totem"  . ("1+Video" "~"))
+   ("Emacs.*"            . "1+Emacs")
+   ("Firefox|Vimperator" . "1+Web")
+   ("urxvt.*"            . "1+Term")
+   (".*"                 . "sel")
+   (".*"                 . "1")))
 
 (wmii:global-settings-set!
  `((font        . ,wmii-font)
@@ -59,22 +60,19 @@
 
 ;;; Function definitions
 
-(define (wimenu options . rest)
-  (receive (in out pid)
-           (process "wimenu")
-           (display (string-join options "\n") out)
-           (close-output-port out)
-           (let ((chosen (read-line in)))
-             (close-input-port in)
-             (and (string? chosen) chosen))))
-
 ; Start a process in the background
 (define (fork-run . args)
   (process-wait (process-fork (lambda () (apply process-run args)))))
 
 ; Start a process and return its output
 (define (shell args)
-  (call-with-input-pipe args (lambda (i) (read-lines i))))
+  (with-input-from-pipe args read-lines))
+
+; Nth
+(define-syntax nth
+  (syntax-rules ()
+    ((nth i list)
+     (list-ref list i))))
 
 ; Run macro using above shell function
 (define-syntax run
@@ -92,6 +90,15 @@
     [(run command)
      (shell command)]))
 
+(define (wimenu options . rest)
+  (receive (in out pid)
+           (process "wimenu")
+           (display (string-join options "\n") out)
+           (close-output-port out)
+           (let ((chosen (read-line in)))
+             (close-input-port in)
+             (and (string? chosen) chosen))))
+
 (define status
   (let ((status-thread #f))
     (lambda ()
@@ -101,8 +108,10 @@
 	     (make-thread
 	      (lambda ()
 		(let loop ()
-		  (wmii:write-tab "rbar" "status"
-                                  (with-input-from-pipe "echo -n $(nyxmms2 status) '|' $(uptime | sed 's/.*://; s/,//g') '|' $(date)" read-string))
+                  (for-each
+                   (lambda (bar)
+                     (wmii:write-tab "rbar" (nth 0 bar) (string-trim-both (eval (nth 1 bar))) (nth 2 bar)))
+                   (append status-bars `((0 "" ,wmii-normcolors))))
 		  (thread-sleep! 1)
 		  (loop)))))))))
 
