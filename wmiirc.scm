@@ -49,11 +49,11 @@
    (".*"     . (62 38))))
 
 (wmii:tagrules-set!
- `(("Quod Libet.*"       . "Music")
+ `(("Quod Libet|Abraca"  . "1+Music")
    ("MPlayer|VLC|Totem"  . ("1+Video" "~"))
-   ("Emacs.*"            . "1+Emacs")
+   ("Emacs"              . "1+Emacs")
    ("Firefox|Vimperator" . "1+Web")
-   ("urxvt.*"            . "1+Term")
+   ("urxvt"              . "1+Term")
    (".*"                 . "sel")
    (".*"                 . "1")))
 
