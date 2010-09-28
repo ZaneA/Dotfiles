@@ -209,6 +209,12 @@
                    (format "~s" (eval (with-input-from-string input read)))
                    wmii-evalcolors))))
 
+   ; YubNub
+   ((key ,modkey "Shift" "Return")
+    . ,(lambda _
+         (and-let* ((input (wimenu `(""))))
+                   (fork-run (conc "x-www-browser 'http://www.yubnub.org/parser/parse?command=" input "'")))))
+
    ; Other menus/running stuff
    ((key ,modkey "p")
     . ,(lambda _
