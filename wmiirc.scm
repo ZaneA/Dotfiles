@@ -22,7 +22,7 @@
 
 (define wmii-normcolors  '(#xf6f3e8 #x242424 #x303030))
 (define wmii-focuscolors '(#x000000 #xcae682 #x303030))
-(define wmii-font "xft:Terminus-8")
+(define wmii-font "-*-terminus-*-*-*-*-*-*-*-*-*-*-*-*")
 (define wmii-colmode "default")
 (define wmii-barposition "on bottom")
 (define wmii-floatborder "3")
@@ -34,12 +34,18 @@
 (define shell #f) ; Forward decl
 
 (define status-bars
-  `((a-music (string-join (shell "nyxmms2 status"))
+  `((b-dropbox (conc "Dropbox: " (string-join (shell "dropbox status")))
+               (fork-run (conc wmii-term " -cd ~/Dropbox"))
+               (#xcc8888 #x242424 #x242424))
+    (a-music (string-join (shell "nyxmms2 status -f '${artist} - ${title}'"))
              (fork-run "abraca") ; Eval'd on click
-             (#xcae682 #x242424 #x242424))
-    (b-date (string-join (shell "date"))
+             (#x88cc88 #x242424 #x242424))
+    (c-loadavg (string-join (shell "awk '{print $1\" \"$2\" \"$3}' /proc/loadavg"))
+               (fork-run (conc wmii-term " -e htop"))
+               (#x8888cc #x242424 #x242424))
+    (d-date (string-join (shell "date '+%A %e %B %l.%M%P'"))
             #f
-            (#xaaaaaa #x242424 #x242424))))
+            (#xcccc88 #x242424 #x242424))))
 
 
 ;;; Rule config
@@ -54,6 +60,7 @@
    ("Emacs"              . "1+Emacs")
    ("Firefox|Vimperator" . "1+Web")
    ("urxvt"              . "1+Term")
+   ("gimp"               . "Graphics")
    (".*"                 . "sel")
    (".*"                 . "1")))
 
@@ -188,6 +195,8 @@
    ((key ,modkey "f")
     . ,(lambda _ (wmii:change-state "Fullscreen" 'toggle)))
    ((key ,modkey "Shift" "c")
+    . ,(lambda _ (wmii:kill)))
+   ((key ,modkey "escape")
     . ,(lambda _ (wmii:kill)))
 
    ; Actions

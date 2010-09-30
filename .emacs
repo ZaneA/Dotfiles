@@ -102,6 +102,8 @@
 
 (setq scheme-program-name "csi -:c")
 
+(setq compilation-auto-jump-to-first-error t)
+
 ;; Global keybindings
 
 (global-set-key (kbd "RET") 'newline-and-indent)
@@ -207,6 +209,9 @@
 
 ; nXhtml
 (load "nxhtml/autostart")
+(setq mumamo-chunk-coloring 'submode-colored)
+(setq nxhtml-skip-welcome t)
+(setq rng-nxml-auto-validate-flag nil)
 
 (if (eq system-type 'windows-nt)
     (setq todochiku-command ""))
@@ -216,9 +221,11 @@
  uniquify-buffer-name-style 'reverse
  uniquify-separator ":")
 
+(setq scss-sass-command "~/.gem/ruby/1.8/bin/sass")
+
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso
-               autopair todochiku smart-compile uniquify))
+               autopair todochiku smart-compile uniquify scss-mode))
   (require lib))
 
 (defun my-after-change-major-mode-hook ()
@@ -236,8 +243,8 @@
 ; Apply my minor modes and custom font locks after a mode change
 (add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
 
-(add-hook 'css-mode-hook (lambda ()
-                           (iimage-mode 1)))
+;(add-hook 'css-mode-hook (lambda ()
+;                           (iimage-mode 1)))
 (add-hook 'mail-mode-hook (lambda ()
                             (variable-pitch-mode t)
                             (setq truncate-lines nil)))
@@ -253,6 +260,20 @@
            (Info-index symbol))))))
 
 (add-hook 'scheme-mode-hook 'my-scheme-mode-hook)
+
+(defun my-compilation-hook (buffer string)
+  "Compilation Hook"
+  (fit-window-to-buffer (get-buffer-window buffer t)))
+
+(add-hook 'compilation-finish-functions 'my-compilation-hook)
+
+; comptroll.el
+(defun compilation-troll (buffer msg)
+  (unless (string-match "^finished" msg)
+    (insert-image (create-image "~/.emacs.d/troll.png"))
+    (insert "\n")))
+
+(add-to-list 'compilation-finish-functions 'compilation-troll)
 
 (autoload 'geben "geben" "PHP Debugger on Emacs" t)
 
