@@ -32,6 +32,8 @@ URxvt*scrollBar: false
 URxvt*skipScroll: true
 #URxvt*termName: rxvt-256color
 URxvt*urgentOnBell: true
-URxvt*transparent:          true
-URxvt*shading:              10
-URxvt*inheritPixmap:        true
+#URxvt*transparent:          true
+#URxvt*shading:              10
+#URxvt*inheritPixmap:        true
+URDesktop*transparent: true
+URDesktop*inheritPixmap: true
