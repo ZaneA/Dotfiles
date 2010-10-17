@@ -5,7 +5,7 @@
 (add-to-list 'load-path "~/.emacs.d")
 
 ; Clean up the window a bit
-;(menu-bar-mode -1)
+(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (setq initial-frame-alist '((width . 100) (height . 50))) ; Set frame width/height
@@ -24,10 +24,10 @@
      (fringe ((t (:background "#181818"))))
      (mode-line ((t (:foreground "#aaaaaa" :background "#333333" :box (:color "#181818")))))
      (mode-line-inactive ((t (:foreground "#333333" :background "#111111" :box (:color "#080808")))))
-     (region ((t (:background "#383838"))))
+     (region ((t (:background "#303030"))))
      (font-lock-builtin-face ((t (:foreground "#82b8f2"))))
      (font-lock-comment-face ((t (:foreground "#8d6d6d" :italic t))))
-     (font-lock-comment-delimiter-face ((t (:foreground "#2b2b2b"))))
+     (font-lock-comment-delimiter-face ((t (:foreground "#403b3b"))))
      (font-lock-constant-face ((t (:foreground "#6a88d7"))))
      (font-lock-doc-string-face ((t (:foreground "#2b2b2b" :italic t))))
      (font-lock-doc-face ((t (:foreground "#4b4b4b" :italic t))))
@@ -100,6 +100,8 @@
 
 (setq pop-up-windows nil)
 
+(put 'narrow-to-region 'disabled nil)
+
 (setq scheme-program-name "csi -:c")
 
 (setq compilation-auto-jump-to-first-error t)
@@ -170,7 +172,9 @@
         global-mode-string
         mode-line-frame-identification
         mode-line-buffer-identification
-        default-directory
+        (:eval (if (> (length default-directory) 17)
+                   (concat "..." (substring default-directory -20))
+                 default-directory))
         "   "
         (:propertize mode-name help-echo (format-mode-line minor-mode-alist))
         mode-line-process
@@ -224,13 +228,32 @@
 (setq scss-sass-command "~/.gem/ruby/1.8/bin/sass")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso
-               autopair todochiku smart-compile uniquify scss-mode))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight
+               autopair todochiku smart-compile uniquify scss-mode hideshow-org))
   (require lib))
+
+(winner-mode t) ; Undo window changes with C-c left
+
+(midnight-delay-set 'midnight-delay "1:00am")
+
+(vimpulse-define-text-object vimpulse-sexp (arg)
+  "Select a S-expression."
+  :keys '("ae" "ie")
+  (vimpulse-inner-object-range
+   arg
+   'backward-sexp
+   'forward-sexp))
+
+(defun my-find-file-hook ()
+  (progn
+    (hs-hide-all))) ; Hide blocks by default when opening a file, use tab and shift-tab to open them
+
+(add-hook 'find-file-hooks 'my-find-file-hook)
 
 (defun my-after-change-major-mode-hook ()
   "Apply my minor modes and custom font locks"
   (progn
+    (hs-org/minor-mode 1)
     (rainbow-mode 1)
     (lambda-mode 1)
     (autopair-mode 1)
@@ -317,7 +340,7 @@
   ;; If there is more than one, they won't work right.
  '(default ((t (:height 100 :foundry "microsoft" :family "Consolas"))))
  '(variable-pitch ((t (:height 100 :foundry "microsoft" :family "Corbel"))))
- '(linum ((t (:inherit (shadow default) :foreground "grey30"))))
+ '(linum ((t (:inherit (shadow default) :height 100 :foundry "microsoft" :family "Corbel" :foreground "grey30"))))
  '(mumamo-background-chunk-major ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode1 ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode2 ((((class color) (min-colors 88) (background dark)) nil)))
