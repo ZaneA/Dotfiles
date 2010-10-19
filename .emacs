@@ -26,13 +26,14 @@
      (mode-line-inactive ((t (:foreground "#333333" :background "#111111" :box (:color "#080808")))))
      (region ((t (:background "#303030"))))
      (font-lock-builtin-face ((t (:foreground "#82b8f2"))))
-     (font-lock-comment-face ((t (:foreground "#8d6d6d" :italic t))))
+     (font-lock-comment-face ((t (:inherit variable-pitch :foreground "#8d6d6d" :italic t))))
      (font-lock-comment-delimiter-face ((t (:foreground "#403b3b"))))
      (font-lock-constant-face ((t (:foreground "#6a88d7"))))
      (font-lock-doc-string-face ((t (:foreground "#2b2b2b" :italic t))))
-     (font-lock-doc-face ((t (:foreground "#4b4b4b" :italic t))))
+     (font-lock-doc-face ((t (:inherit variable-pitch :foreground "#6b9b6b" :italic t))))
+     (font-lock-reference-face ((t (:foreground "red"))))
      (font-lock-reference-name-face ((t (:foreground "red"))))
-     (font-lock-operator-face ((t (:foreground "#555555" :bold t))))
+     (font-lock-operator-face ((t (:foreground "#bbccbb" :bold t))))
      (font-lock-negation-char-face ((t (:foreground "#dd4444" :bold t))))
      (font-lock-function-name-face ((t (:foreground "#dd8888" :bold t))))
      (font-lock-keyword-face ((t (:foreground "#8aa8e7"))))
@@ -40,9 +41,9 @@
      (font-lock-string-face ((t (:foreground "#cb99e1"))))
      (font-lock-type-face ((t (:foreground"#b7e234" :bold t))))
      (font-lock-variable-name-face ((t (:foreground "#888888"))))
-     (font-lock-paren-face ((t (:foreground "#555555" :bold t))))
+     (font-lock-paren-face ((t (:foreground "#666677" :bold t))))
      (minibuffer-prompt ((t (:foreground "#85c0ff" :bold t))))
-     (font-lock-warning-face ((t (:foreground "#ddbbbb"))))
+     (font-lock-warning-face ((t (:foreground "#ffbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
      (org-link ((t (:foreground "#7788aa"))))
      (org-date ((t (:foreground "#88bbff"))))
@@ -52,7 +53,7 @@
      (org-level-3 ((t (:foreground "#777777"))))
      (org-level-4 ((t (:foreground "#555555"))))
      (org-tag ((t (:foreground "#dddda0"))))
-     (org-todo ((t (:foreground "#ddbbbb" :bold t))))
+     (org-todo ((t (:foreground "#ffbbbb" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
      (org-warning ((t (:foreground "#775555" :italic t))))
      (eshell-prompt ((t (:foreground "#444444"))))
@@ -105,6 +106,7 @@
 (setq scheme-program-name "csi -:c")
 
 (setq compilation-auto-jump-to-first-error t)
+(setq compilation-skip-threshold 2)
 
 ;; Global keybindings
 
@@ -259,18 +261,23 @@
     (autopair-mode 1)
     (font-lock-add-keywords
      nil
-     '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" . 'font-lock-operator-face)
-       ("!" . 'font-lock-negation-char-face)
-       ("(\\|)\\|{\\|}\\|\\[\\|\\]" . 'font-lock-paren-face)))))
+     '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
+       ("!" (0 'font-lock-negation-char-face append))
+       ("(\\|)\\|{\\|}\\|\\[\\|\\]" (0 'font-lock-paren-face append))))))
 
 ; Apply my minor modes and custom font locks after a mode change
 (add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
 
 ;(add-hook 'css-mode-hook (lambda ()
 ;                           (iimage-mode 1)))
-(add-hook 'mail-mode-hook (lambda ()
-                            (variable-pitch-mode t)
-                            (setq truncate-lines nil)))
+
+(defun my-variable-pitch-mode ()
+  "Apply variable pitch stuff"
+  (variable-pitch-mode t)
+  (setq truncate-lines nil))
+
+(add-hook 'mail-mode-hook 'my-variable-pitch-mode)
+(add-hook 'text-mode-hook 'my-variable-pitch-mode)
 
 (defun my-scheme-mode-hook ()
   "Apply scheme mode stuff"
@@ -298,7 +305,7 @@
 
 (add-to-list 'compilation-finish-functions 'compilation-troll)
 
-(autoload 'geben "geben" "PHP Debugger on Emacs" t)
+;(autoload 'geben "geben" "PHP Debugger on Emacs" t)
 
 ;(autoload 'moz-minor-mode "moz" "Mozilla Minor and Inferior Mozilla Modes" t)
 ; 

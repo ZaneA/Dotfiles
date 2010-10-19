@@ -41,7 +41,7 @@ setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslas
 PATH=$PATH:~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/
 
 # Handy aliases
-alias ls='ls --color=auto -FC' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
+alias ls='ls --color=auto -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
 alias ec='emacsclient -n'
 
 # Not so handy aliases
