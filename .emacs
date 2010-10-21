@@ -15,22 +15,23 @@
   (interactive)
   (color-theme-install
    '(color-theme-hash
-      ((background-color . "#181818")
+     ((background-color . "#121212")
       (background-mode . dark)
       (border-color . "#000000")
       (cursor-color . "#ddffdd")
       (foreground-color . "#cccccc")
       (mouse-color . "black"))
-     (fringe ((t (:background "#181818"))))
-     (mode-line ((t (:foreground "#aaaaaa" :background "#333333" :box (:color "#181818")))))
-     (mode-line-inactive ((t (:foreground "#333333" :background "#111111" :box (:color "#080808")))))
-     (region ((t (:background "#303030"))))
+     (fringe ((t (:background "#121212"))))
+     (vertical-border ((t (:foreground "#111111"))))
+     (mode-line ((t (:inherit variable-pitch :foreground "#555555" :background "#000000" :box (:color "#000000" :line-width 6)))))
+     (mode-line-inactive ((t (:inherit variable-pitch :foreground "#151515" :background "#000000" :box (:color "#000000" :line-width 6)))))
+     (region ((t (:foreground "#666666" :background "#303030"))))
      (font-lock-builtin-face ((t (:foreground "#82b8f2"))))
      (font-lock-comment-face ((t (:inherit variable-pitch :foreground "#8d6d6d" :italic t))))
      (font-lock-comment-delimiter-face ((t (:foreground "#403b3b"))))
      (font-lock-constant-face ((t (:foreground "#6a88d7"))))
      (font-lock-doc-string-face ((t (:foreground "#2b2b2b" :italic t))))
-     (font-lock-doc-face ((t (:inherit variable-pitch :foreground "#6b9b6b" :italic t))))
+     (font-lock-doc-face ((t (:inherit variable-pitch :foreground "#6b9b8b" :italic t))))
      (font-lock-reference-face ((t (:foreground "red"))))
      (font-lock-reference-name-face ((t (:foreground "red"))))
      (font-lock-operator-face ((t (:foreground "#bbccbb" :bold t))))
@@ -56,6 +57,7 @@
      (org-todo ((t (:foreground "#ffbbbb" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
      (org-warning ((t (:foreground "#775555" :italic t))))
+     (org-table ((t (:inherit fixed-pitch))))
      (eshell-prompt ((t (:foreground "#444444"))))
     )))
 
@@ -173,16 +175,15 @@
        (""
         global-mode-string
         mode-line-frame-identification
-        mode-line-buffer-identification
         (:eval (if (> (length default-directory) 17)
                    (concat "..." (substring default-directory -20))
                  default-directory))
-        "   "
+        mode-line-buffer-identification
         (:propertize mode-name help-echo (format-mode-line minor-mode-alist))
         mode-line-process
         "   "
-        (-3 . "%P")
-        "   "
+        ;(-3 . "%P")
+        ;"   "
         (:propertize urgent-org-mode-line face 'org-warning)
         "   "
         "-%-"
@@ -211,6 +212,18 @@
             (variable-pitch-mode t)
             (add-hook 'local-write-file-hooks 'update-org)))
 
+(defun fit-window-to-region ()
+  "Fits the current window to the selected region"
+  (interactive)
+  (if (and transient-mark-mode mark-active)
+      (progn
+        (narrow-to-region (region-beginning) (region-end))
+        (run-at-time 0.1 nil ; No idea why this doesn't work without the timer..
+                     (lambda ()
+                       (fit-window-to-buffer)
+                       (widen))))
+    (message "No region selected")))
+
 ;; Load some libraries
 
 ; nXhtml
@@ -231,7 +244,7 @@
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight
-               autopair todochiku smart-compile uniquify scss-mode hideshow-org))
+               autopair todochiku smart-compile uniquify scss-mode))
   (require lib))
 
 (winner-mode t) ; Undo window changes with C-c left
@@ -246,16 +259,16 @@
    'backward-sexp
    'forward-sexp))
 
-(defun my-find-file-hook ()
-  (progn
-    (hs-hide-all))) ; Hide blocks by default when opening a file, use tab and shift-tab to open them
-
-(add-hook 'find-file-hooks 'my-find-file-hook)
+; (defun my-find-file-hook ()
+;   (progn
+;     (hs-hide-all))) ; Hide blocks by default when opening a file, use tab and shift-tab to open them
+;  
+; (add-hook 'find-file-hooks 'my-find-file-hook)
 
 (defun my-after-change-major-mode-hook ()
   "Apply my minor modes and custom font locks"
   (progn
-    (hs-org/minor-mode 1)
+;    (hs-org/minor-mode 1)
     (rainbow-mode 1)
     (lambda-mode 1)
     (autopair-mode 1)
@@ -268,8 +281,7 @@
 ; Apply my minor modes and custom font locks after a mode change
 (add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
 
-;(add-hook 'css-mode-hook (lambda ()
-;                           (iimage-mode 1)))
+;(add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
 
 (defun my-variable-pitch-mode ()
   "Apply variable pitch stuff"
@@ -353,7 +365,7 @@
  '(mumamo-background-chunk-submode2 ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode3 ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode4 ((((class color) (min-colors 88) (background dark)) nil)))
- '(tabbar-button ((t (:inherit tabbar-default :foreground "grey30"))))
+ '(tabbar-button ((t (:inherit tabbar-default :foreground "#000000"))))
  '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey40" :height 1.1))))
  '(tabbar-selected ((t (:inherit tabbar-default :bold t :foreground "grey80" :box (:line-width 6 :color "black")))))
  '(tabbar-unselected ((t (:inherit tabbar-default :box (:line-width 6 :color "black"))))))
