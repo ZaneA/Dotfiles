@@ -59,6 +59,12 @@
      (org-warning ((t (:foreground "#775555" :italic t))))
      (org-table ((t (:inherit fixed-pitch))))
      (eshell-prompt ((t (:foreground "#444444"))))
+     (mode-line-global-face ((t (:foreground "#b7e234" :bold t))))
+     (mode-line-folder-face ((t (:foreground "#888899"))))
+     (mode-line-filename-face ((t (:foreground "#bbbbff" :bold t))))
+     (mode-line-mode-face ((t (:foreground "#b7e234" :bold t))))
+     (mode-line-mode-process-face ((t (:foreground "#ffc234"))))
+     (mode-line-tasks-face ((t (:foreground "#ffaaaa")))
     )))
 
 (require 'color-theme)
@@ -75,7 +81,8 @@
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(setq frame-title-format '(buffer-file-name "%f" ("%b")))
+(setq urgent-org-mode-line "N/A")
+(setq frame-title-format '("Emacs | Urgent Tasks: " urgent-org-mode-line " | " (buffer-file-name "%f" ("%b"))))
 (setq x-stretch-cursor t)
 (setq x-select-enable-clipboard t)
 (setq default-fill-column 79)
@@ -170,21 +177,30 @@
 
 (global-set-key (kbd "C-c a") 'org-agenda)
 
+(setq mode-line-in-non-selected-windows nil)
 (setq default-mode-line-format
       (quote
-       (""
-        global-mode-string
+       (" "
+        (:propertize global-mode-string
+                     face 'mode-line-global-face)
         mode-line-frame-identification
-        (:eval (if (> (length default-directory) 17)
+        (:propertize (:eval (if (> (length default-directory) 17)
                    (concat "..." (substring default-directory -20))
                  default-directory))
-        mode-line-buffer-identification
-        (:propertize mode-name help-echo (format-mode-line minor-mode-alist))
-        mode-line-process
+                     face 'mode-line-folder-face)
+        (:propertize mode-line-buffer-identification
+                     face 'mode-line-filename-face)
+        "   "
+        (:propertize mode-name
+                     help-echo (format-mode-line minor-mode-alist)
+                     face 'mode-line-mode-face)
+        (:propertize mode-line-process
+                     face 'mode-line-mode-process-face)
         "   "
         ;(-3 . "%P")
         ;"   "
-        (:propertize urgent-org-mode-line face 'org-warning)
+        (:propertize urgent-org-mode-line
+                     face 'mode-line-tasks-face)
         "   "
         "-%-"
         )))
@@ -366,7 +382,7 @@
  '(mumamo-background-chunk-submode3 ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode4 ((((class color) (min-colors 88) (background dark)) nil)))
  '(tabbar-button ((t (:inherit tabbar-default :foreground "#000000"))))
- '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey40" :height 1.1))))
+ '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey70" :height 1.1))))
  '(tabbar-selected ((t (:inherit tabbar-default :bold t :foreground "grey80" :box (:line-width 6 :color "black")))))
  '(tabbar-unselected ((t (:inherit tabbar-default :box (:line-width 6 :color "black"))))))
 
