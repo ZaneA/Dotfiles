@@ -225,10 +225,11 @@
 
 (run-at-time nil 300 'update-org)
 
-;(add-hook 'org-mode-hook
-;          (lambda ()
-;            (variable-pitch-mode t)
-;            (add-hook 'local-write-file-hooks 'update-org)))
+(defun my-clock-in-on-workspace-change (workspace)
+  (org-clock-out t)
+  (org-map-entries
+   (lambda () (org-clock-in))
+   (concat "workspace" (number-to-string workspace)) 'agenda))
 
 (defun fit-window-to-region ()
   "Fits the current window to the selected region"
