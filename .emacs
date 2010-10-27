@@ -36,7 +36,7 @@
      (font-lock-reference-name-face ((t (:foreground "red"))))
      (font-lock-operator-face ((t (:foreground "#bbccbb" :bold t))))
      (font-lock-negation-char-face ((t (:foreground "#dd4444" :bold t))))
-     (font-lock-function-name-face ((t (:foreground "#dd8888" :bold t))))
+     (font-lock-function-name-face ((t (:foreground "#dd8888" :bold t))))    
      (font-lock-keyword-face ((t (:foreground "#8aa8e7"))))
      (font-lock-preprocessor-face ((t (:foreground "#cb99e1"))))
      (font-lock-string-face ((t (:foreground "#cb99e1"))))
@@ -64,7 +64,7 @@
      (mode-line-filename-face ((t (:foreground "#bbbbff" :bold t))))
      (mode-line-mode-face ((t (:foreground "#b7e234" :bold t))))
      (mode-line-mode-process-face ((t (:foreground "#ffc234"))))
-     (mode-line-tasks-face ((t (:foreground "#ffaaaa")))
+     (mode-line-tasks-face ((t (:foreground "#ffaaaa"))))
     )))
 
 (require 'color-theme)
@@ -83,6 +83,7 @@
 
 (setq urgent-org-mode-line "N/A")
 (setq frame-title-format '("Emacs | Urgent Tasks: " urgent-org-mode-line " | " (buffer-file-name "%f" ("%b"))))
+(setq-default cursor-in-non-selected-windows nil)
 (setq x-stretch-cursor t)
 (setq x-select-enable-clipboard t)
 (setq default-fill-column 79)
@@ -119,7 +120,7 @@
 
 ;; Global keybindings
 
-(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "RET") 'align-newline-and-indent)
 (global-set-key (kbd "M-\\") 'align-regexp)
 (global-set-key (kbd "M-/") 'hippie-expand)
 
@@ -130,7 +131,7 @@
   (browse-url (concat "http://google.com/search?q=" query)))
 
 (defun google-im-feeling-lucky (query)
-  (interactive "sGoogle: ")
+  (interactive "sI'm feeling lucky: ")
   (browse-url (concat "http://google.com/search?btnI&q=" query)))
 
 (defun google-word-at-point ()
@@ -139,6 +140,7 @@
 
 (global-set-key (kbd "<f1>") 'google-word-at-point)
 (global-set-key (kbd "<f2>") (lambda () (interactive) (call-interactively 'google)))
+(global-set-key (kbd "<f3>") (lambda () (interactive) (call-interactively 'google-im-feeling-lucky)))
 
 (setq compilation-read-command nil)
 (global-set-key (kbd "<f5>") 'smart-compile)
@@ -223,10 +225,10 @@
 
 (run-at-time nil 300 'update-org)
 
-(add-hook 'org-mode-hook
-          (lambda ()
-            (variable-pitch-mode t)
-            (add-hook 'local-write-file-hooks 'update-org)))
+;(add-hook 'org-mode-hook
+;          (lambda ()
+;            (variable-pitch-mode t)
+;            (add-hook 'local-write-file-hooks 'update-org)))
 
 (defun fit-window-to-region ()
   "Fits the current window to the selected region"
@@ -260,7 +262,7 @@
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight
-               autopair todochiku smart-compile uniquify scss-mode))
+               autopair todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
 (winner-mode t) ; Undo window changes with C-c left
@@ -306,6 +308,8 @@
 
 (add-hook 'mail-mode-hook 'my-variable-pitch-mode)
 (add-hook 'text-mode-hook 'my-variable-pitch-mode)
+(add-hook 'Info-mode-hook 'my-variable-pitch-mode)
+(add-hook 'org-mode-hook 'my-variable-pitch-mode)
 
 (defun my-scheme-mode-hook ()
   "Apply scheme mode stuff"
@@ -318,6 +322,12 @@
            (Info-index symbol))))))
 
 (add-hook 'scheme-mode-hook 'my-scheme-mode-hook)
+
+(defun my-sawfish-mode-hook ()
+  "Apply Sawfish mode stuff"
+  (define-key sawfish-mode-map (kbd "M-/") 'sawfish-complete-symbol))
+
+(add-hook 'sawfish-mode-hook 'my-sawfish-mode-hook)
 
 (defun my-compilation-hook (buffer string)
   "Compilation Hook"
