@@ -28,9 +28,9 @@ parse_git_dirty () {
 # Command in window title
 case $TERM in
     rxvt*|xterm*)
-        preexec () {
-            print -Pn "\e]0;$1\a"
-        }
+        #preexec () { print -Pn "\e]0;$1\a" }
+        precmd () { print -Pn "\e]0;%n@%m: %~\a" }
+        preexec () { print -Pn "\e]0;%n@%m: $1\a" }
     ;;
 esac
 
