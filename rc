@@ -1,0 +1,89 @@
+;; Sawfish Config
+
+;; Require stuff
+
+(require 'iswitch-window)
+(require 'sawfish.wm.commands.jump-or-exec)
+(require 'prompt)
+(require 'prompt-menu)
+(require 'emacs)
+(require 'shrink-yank)
+(require 'grow-pack)
+(require 'undo)
+(require 'focus-by-direction)
+(require 'native-focus-transparency)
+
+;; Settings
+
+(setq help-display-info-function emacs-call-info)
+(setq *out-of-focus-trans* 0xE0000000)
+
+;; Keymaps
+
+(bind-keys global-keymap
+           "M-tab"   'iswitch-window
+           "M-c"     'delete-window
+           "M-q"     '(prompt-menu (emacs-buffers-menu) "Emacs buffer: ")
+           "M-o"     '(emacs-edit (prompt-for-file))
+           "M-r"     '(prompt-menu root-menu "Menu: ")
+           "M-w"     '(jump-or-exec "Vimperator" "firefox")
+           "M-e"     '(jump-or-exec "Urgent Tasks" "emacs")
+           "M-i"     '(jump-or-exec "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
+
+           "M-Ret"   '(system (concat (prompt) " &"))
+
+           "M-u"     'undo
+
+           "M-Left"  'focus-west
+           "M-Right" 'focus-east
+           "M-Up"    'focus-north
+           "M-Down"  'focus-south
+
+           "M-n"     '(system "firefox &")
+           "M-m"     '(emacs-run "(make-frame)")
+
+           "M--"     'shrink-window-all
+           "M-="     'grow-window-all
+
+           "Super-Button4-Click" 'next-workspace
+           "Super-Button5-Click" 'previous-workspace
+)
+
+; Set up Super-1/2/3/4/...
+(do ((i 1 (1+ i)))
+    ((< (length workspace-names) i) i)
+  (bind-keys global-keymap
+             (concat "Super-" (number->string i))
+             `(activate-workspace ,i)))
+
+(bind-keys root-window-keymap
+           "Button2-Click" '(system "urxvt &")
+           "Button3-Click" 'popup-root-menu
+           "Button4-Click" 'next-workspace
+           "Button5-Click" 'previous-workspace)
+
+(bind-keys window-keymap
+           "M-Button3-Move" 'resize-window-interactively)
+
+
+(define (grow-window-all w #!optional arg)
+  (grow-window-up w arg)
+  (grow-window-right w arg)
+  (grow-window-down w arg)
+  (grow-window-left w arg))
+
+(define-command 'grow-window-all grow-window-all #:spec "%W\nP")
+
+(define (shrink-window-all w #!optional arg)
+  (shrink-window-up w arg)
+  (shrink-window-right w arg)
+  (shrink-window-down w arg)
+  (shrink-window-left w arg))
+
+(define-command 'shrink-window-all shrink-window-all #:spec "%W\nP")
+
+(define (my-enter-workspace-hook)
+  (emacs-eval (concat "(my-clock-in-on-workspace-change " (number->string (1+ current-workspace)) ")")))
+
+(add-hook 'enter-workspace-hook my-enter-workspace-hook)
+;(remove-hook 'enter-workspace-hook my-enter-workspace-hook)
