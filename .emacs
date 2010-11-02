@@ -82,7 +82,7 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (setq urgent-org-mode-line "N/A")
-(setq frame-title-format '("Emacs | Urgent Tasks: " urgent-org-mode-line " | " (buffer-file-name "%f" ("%b"))))
+(setq frame-title-format '((buffer-name "%f" ("%b")) " (" mode-name ") | Urgent Tasks: " urgent-org-mode-line))
 (setq-default cursor-in-non-selected-windows nil)
 (setq x-stretch-cursor t)
 (setq x-select-enable-clipboard t)
@@ -243,6 +243,30 @@
                        (widen))))
     (message "No region selected")))
 
+;; From http://ruslanspivak.com/2007/08/18/htmlize-your-erlang-code-buffer/
+(setq htmlize-output-type 'inline-css)
+(defun my-htmlize-region (beg end)
+  "Htmlize region and put into <pre> tag style that is left in <body> tag
+plus add font-size: 8pt"
+  (interactive "r")
+  (let* ((buffer-faces (htmlize-faces-in-buffer))
+         (face-map (htmlize-make-face-map (adjoin 'default buffer-faces)))
+         (pre-tag (format
+                   "<pre style=\"%s font-size: 8pt\">"
+                   (mapconcat #'identity (htmlize-css-specs
+                                          (gethash 'default face-map)) " ")))
+         (htmlized-reg (htmlize-region-for-paste beg end)))
+    (switch-to-buffer-other-window "*htmlized output*")
+                                        ; clear buffer
+    (kill-region (point-min) (point-max))
+                                        ; set mode to have syntax highlighting
+    (nxml-mode)
+    (save-excursion
+      (insert htmlized-reg))
+    (while (re-search-forward "<pre>" nil t)
+      (replace-match pre-tag nil nil))
+    (goto-char (point-min))))
+
 ;; Load some libraries
 
 ; nXhtml
@@ -262,7 +286,7 @@
 (setq scss-sass-command "~/.gem/ruby/1.8/bin/sass")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight
+(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight magpie
                autopair todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
@@ -277,6 +301,11 @@
    arg
    'backward-sexp
    'forward-sexp))
+
+(defun my-sldb-mode-hook ()
+  (setq autopair-dont-activate t))
+
+(add-hook 'sldb-mode-hook 'my-sldb-mode-hook)
 
 ; (defun my-find-file-hook ()
 ;   (progn
@@ -364,6 +393,11 @@
 	 (lambda (buffer)
 	   (find (aref (buffer-name buffer) 0) " *"))
 	 (buffer-list))))
+
+(load (expand-file-name "~/quicklisp/slime-helper.el"))
+(setq inferior-lisp-program "sbcl")
+(require 'slime)
+(slime-setup '(slime-fancy))
 
 ; Set up IRC
 (setq rcirc-default-nick "Hash")
