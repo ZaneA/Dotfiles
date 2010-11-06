@@ -16,11 +16,11 @@
   (color-theme-install
    '(color-theme-hash
      ((background-color . "#121212")
-      (background-mode . dark)
-      (border-color . "#000000")
-      (cursor-color . "#ddffdd")
+      (background-mode  . dark)
+      (border-color     . "#000000")
+      (cursor-color     . "#ddffdd")
       (foreground-color . "#cccccc")
-      (mouse-color . "black"))
+      (mouse-color      . "black"))
      (fringe ((t (:background "#121212"))))
      (vertical-border ((t (:foreground "#111111"))))
      (mode-line ((t (:inherit variable-pitch :foreground "#555555" :background "#000000" :box (:color "#000000" :line-width 6)))))
@@ -46,17 +46,23 @@
      (minibuffer-prompt ((t (:foreground "#85c0ff" :bold t))))
      (font-lock-warning-face ((t (:foreground "#ffbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
-     (org-link ((t (:foreground "#7788aa"))))
+     (show-paren-mismatch-face ((t (:foreground "black" :background "#dd4444" :bold t))))
+     (org-link ((t (:foreground "#667088" :slant italic :height 0.8))))
      (org-date ((t (:foreground "#88bbff"))))
      (org-agenda-date ((t (:foreground "#88bbff"))))
-     (org-level-1 ((t (:foreground "#dddddd" :bold t :height 1.3))))
-     (org-level-2 ((t (:foreground "#aaaaaa" :height 1.2))))
-     (org-level-3 ((t (:foreground "#777777"))))
-     (org-level-4 ((t (:foreground "#555555"))))
-     (org-tag ((t (:foreground "#dddda0"))))
+     (org-level-1 ((t (:foreground "#eeeeee" :underline t :bold t :height 1.3))))
+     (org-level-2 ((t (:foreground "#aaaaaa" :height 1.1))))
+     (org-level-3 ((t (:foreground "#888888" :height 1.0))))
+     (org-level-4 ((t (:foreground "#888888" :slant italic))))
+     (org-tag ((t (:foreground "#559988" :background "#000000"))))
      (org-todo ((t (:foreground "#ffbbbb" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
      (org-warning ((t (:foreground "#775555" :italic t))))
+     (org-special-keyword ((t (:background "#000000" :foreground "#eeccaa"))))
+     (org-verbatim ((t (:foreground) "#6666ff")))
+     (org-block ((t (:foreground) "#6666ff")))
+     (org-quote ((t (:foreground) "#6666ff")))
+     (org-verse ((t (:foreground) "#6666ff")))
      (org-table ((t (:inherit fixed-pitch))))
      (eshell-prompt ((t (:foreground "#444444"))))
      (mode-line-global-face ((t (:foreground "#b7e234" :bold t))))
@@ -120,7 +126,7 @@
 
 ;; Global keybindings
 
-(global-set-key (kbd "RET") 'align-newline-and-indent)
+(global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "M-\\") 'align-regexp)
 (global-set-key (kbd "M-/") 'hippie-expand)
 
@@ -229,7 +235,7 @@
   (org-clock-out t)
   (org-map-entries
    (lambda () (org-clock-in))
-   (concat "workspace" (number-to-string workspace)) 'agenda))
+   workspace 'agenda))
 
 (defun fit-window-to-region ()
   "Fits the current window to the selected region"
@@ -320,11 +326,12 @@ plus add font-size: 8pt"
     (rainbow-mode 1)
     (lambda-mode 1)
     (autopair-mode 1)
-    (font-lock-add-keywords
-     nil
-     '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
-       ("!" (0 'font-lock-negation-char-face append))
-       ("(\\|)\\|{\\|}\\|\\[\\|\\]" (0 'font-lock-paren-face append))))))
+    (when (not (string= "org-mode" major-mode))
+      (font-lock-add-keywords
+       nil
+       '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
+         ("!" (0 'font-lock-negation-char-face append))
+         ("(\\|)\\|{\\|}\\|\\[\\|\\]" (0 'font-lock-paren-face append)))))))
 
 ; Apply my minor modes and custom font locks after a mode change
 (add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
@@ -395,7 +402,7 @@ plus add font-size: 8pt"
 	 (buffer-list))))
 
 (load (expand-file-name "~/quicklisp/slime-helper.el"))
-(setq inferior-lisp-program "sbcl")
+(setq inferior-lisp-program "sbcl --noinform --no-linedit")
 (require 'slime)
 (slime-setup '(slime-fancy))
 
