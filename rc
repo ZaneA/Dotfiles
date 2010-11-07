@@ -24,15 +24,14 @@
 
 (bind-keys irc-keymap
            "M-i"   '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
-           "i"     '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
-           "p"     '(irc (x-get-selection 'PRIMARY))
-           "s"     '(irc (prompt #:title "IRC:"))
+           "M-p"     '(irc (x-get-selection 'PRIMARY))
+           "M-s"     '(irc (prompt #:title "IRC:"))
 )
 
 (do ((i 1 (1+ i)))
     ((< 9 i) i)
   (bind-keys irc-keymap
-             (number->string i)
+             (concat "M-" (number->string i))
              `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "screen -x"))))
 
 (bind-keys global-keymap
