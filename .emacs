@@ -293,7 +293,7 @@ plus add font-size: 8pt"
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight magpie
-               autopair todochiku smart-compile uniquify scss-mode sawfish saw-client))
+               todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
 (winner-mode t) ; Undo window changes with C-c left
@@ -308,11 +308,6 @@ plus add font-size: 8pt"
    'backward-sexp
    'forward-sexp))
 
-(defun my-sldb-mode-hook ()
-  (setq autopair-dont-activate t))
-
-(add-hook 'sldb-mode-hook 'my-sldb-mode-hook)
-
 ; (defun my-find-file-hook ()
 ;   (progn
 ;     (hs-hide-all))) ; Hide blocks by default when opening a file, use tab and shift-tab to open them
@@ -321,17 +316,14 @@ plus add font-size: 8pt"
 
 (defun my-after-change-major-mode-hook ()
   "Apply my minor modes and custom font locks"
-  (progn
-;    (hs-org/minor-mode 1)
-    (rainbow-mode 1)
-    (lambda-mode 1)
-    (autopair-mode 1)
-    (when (not (string= "org-mode" major-mode))
-      (font-lock-add-keywords
-       nil
-       '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
-         ("!" (0 'font-lock-negation-char-face append))
-         ("(\\|)\\|{\\|}\\|\\[\\|\\]" (0 'font-lock-paren-face append)))))))
+  (rainbow-mode 1)
+  (lambda-mode 1)
+  (when (not (string= "org-mode" major-mode))
+    (font-lock-add-keywords
+     nil
+     '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
+       ("!" (0 'font-lock-negation-char-face append))
+       ("(\\|)\\|{\\|}\\|\\[\\|\\]" (0 'font-lock-paren-face append))))))
 
 ; Apply my minor modes and custom font locks after a mode change
 (add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
