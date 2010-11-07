@@ -39,19 +39,19 @@
            "M-tab"   '(display-window (prompt-for-window))
 
            "M-c"     'delete-window
-           "M-b"     '(prompt-menu (emacs-buffers-menu) "Emacs buffer: ")
-           "M-f"     '(emacs-edit (prompt-for-file))
-           "M-o"     '(system (format nil "gnome-open %s &" (prompt-for-file)))
+           "M-b"     '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
+           "M-f"     '(emacs-edit (prompt-for-file "Emacs Edit:"))
+           "M-o"     '(system (format nil "gnome-open %s &" (prompt-for-file "Open:")))
            "M-r"     '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
 
            "M-w"     '(jump-or-exec-or-last "Vimperator" "firefox")
            "M-e"     '(jump-or-exec-or-last "Urgent Tasks" "emacs")
            "M-i"     irc-keymap
 
-           "Super-Ret" '(prompt-for-artist)
+           "Super-Ret" '(prompt-for-music)
 
-           "M-Ret"   '(system (concat (prompt #:title "Exec:") " &"))
-           "M-`"     '(call-command (prompt-for-command))
+           "M-Ret"   '(system (concat (prompt #:title "Run:") " &"))
+           "M-`"     '(call-command (prompt-for-command "Sawfish Command:"))
 
            "M-u"     'undo
 
@@ -63,11 +63,16 @@
            "M-n"     '(system "firefox &")
            "M-m"     '(emacs-run "(make-frame)")
 
+           "M-Space" '(system "urxvt &")
+
            "M--"     'shrink-window-all
            "M-="     'grow-window-all
 
            "Super-Button4-Click" 'next-workspace
            "Super-Button5-Click" 'previous-workspace
+
+           "Super-Button1-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_rms_arctic_hts))
+           "Super-Button3-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_slt_arctic_hts))
 )
 
 (do ((i 1 (1+ i)))
@@ -144,10 +149,25 @@
                       "SELECT DISTINCT value FROM Media WHERE key = \"artist\";")
         (string-split "\012" (get-output-stream-string output))))
 
-(define (music artist)
-  (system (format nil "nyxmms2 scap artist:\"%s\" &" artist)))
+(define (music query)
+  "Select artist or query for playing in XMMS2"
+  (if (string-match "[:~]" query)
+      (system (format nil "nyxmms2 scap %s &" query))
+    (system (format nil "nyxmms2 scap artist:'%s' &" query))))
 
-(define (prompt-for-artist)
-  (let ((artist (prompt-from-list *music-list* "Music:")))
-    (when artist
-      (music artist))))
+(define (prompt-for-music)
+  (let ((query (prompt-from-list *music-list* "Music:" nil t)))
+    (when query
+      (music query))))
+
+;; Festival
+
+(require 'festival)
+(festival-open)
+
+(define (festival-say-with-voice text voice)
+  (festival-eval voice)
+  (festival-say text)
+  (festival-eval '(voice_nitech_us_slt_arctic_hts)))
+
+(festival-say-workspace-on-change t)
