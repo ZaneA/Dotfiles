@@ -292,7 +292,7 @@ plus add font-size: 8pt"
 (setq scss-sass-command "~/.gem/ruby/1.8/bin/sass")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode iimage espresso lorem-ipsum midnight magpie
+(dolist (lib '(vimpulse rainbow-mode lambda-mode espresso lorem-ipsum midnight magpie
                todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
@@ -354,6 +354,10 @@ plus add font-size: 8pt"
 
 (defun my-sawfish-mode-hook ()
   "Apply Sawfish mode stuff"
+  (define-key sawfish-mode-map [f1]
+    '(lambda ()
+       (interactive)
+       (browse-url "http://sawmill.sourceforge.net/prog-manual.html")))
   (define-key sawfish-mode-map (kbd "M-/") 'sawfish-complete-symbol))
 
 (add-hook 'sawfish-mode-hook 'my-sawfish-mode-hook)
