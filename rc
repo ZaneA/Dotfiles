@@ -185,3 +185,36 @@
    "Super-Button1-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_rms_arctic_hts))
    "Super-Button3-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_slt_arctic_hts))
    ))
+
+;; Mouse Gestures
+(when (member 'mouse-gestures *use-features*)
+  (setq *gestures-initial-xy* '(0 . 0))
+
+  (define (start-gesture)
+    "Initialize gestures, must be called on mouse-down, before perform-gesture"
+    (setq *gestures-initial-xy* (query-pointer)))
+
+  (define (perform-gesture #!key threshold up down left right)
+    "Perform a mouse-based gesture"
+    (let* ((threshold (or threshold 60))
+           (initial-x (car *gestures-initial-xy*))
+           (initial-y (cdr *gestures-initial-xy*))
+           (new-xy (query-pointer))
+           (new-x (car new-xy))
+           (new-y (cdr new-xy)))
+      (cond
+       ((> (- initial-y threshold) new-y)
+        (eval (or up '(grow-window-up (current-window)))))
+       ((> (- initial-x threshold) new-x)
+        (eval (or left '(grow-window-left (current-window)))))
+       ((< (+ initial-y threshold) new-y)
+        (eval (or down '(grow-window-down (current-window)))))
+       ((< (+ initial-x threshold) new-x)
+        (eval (or right '(grow-window-right (current-window))))))))
+
+  (bind-keys
+   global-keymap
+
+   "Super-Button2-Click" '(start-gesture)
+   "Super-Button2-Off" '(perform-gesture)
+   ))
