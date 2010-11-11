@@ -293,7 +293,7 @@ plus add font-size: 8pt"
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode espresso lorem-ipsum midnight magpie
-               todochiku smart-compile uniquify scss-mode sawfish saw-client))
+               tabbar todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
 (winner-mode t) ; Undo window changes with C-c left
