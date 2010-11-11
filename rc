@@ -8,110 +8,106 @@
 (require 'prompt)
 (require 'prompt-menu)
 (require 'emacs)
-(require 'grow-pack)
 (require 'undo)
 (require 'focus-by-direction)
-(require 'native-focus-transparency)
 
 ;; Settings
 
+; Optional Features to load
+(setq *use-features* '(music opacity org))
+
 (setq help-display-info-function emacs-call-info)
-(setq *out-of-focus-trans* 0xE0000000)
 
 ;; Keymaps
 
 (defvar irc-keymap (make-keymap) "Keymap for IRC")
 
-(bind-keys irc-keymap
-           "M-i"   '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
-           "M-p"     '(irc (x-get-selection 'PRIMARY))
-           "M-s"     '(irc (prompt #:title "IRC:"))
-)
+(bind-keys
+ irc-keymap
+
+ "M-i"   '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
+ "M-p"     '(irc (x-get-selection 'PRIMARY))
+ "M-s"     '(irc (prompt #:title "IRC:"))
+ )
 
 (do ((i 1 (1+ i)))
     ((< 9 i) i)
-  (bind-keys irc-keymap
-             (concat "M-" (number->string i))
-             `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "screen -x"))))
+  (bind-keys
+   irc-keymap
+   (concat "M-" (number->string i))
+   `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "screen -x"))))
 
-(bind-keys global-keymap
-           "M-tab"   '(display-window (prompt-for-window))
 
-           "M-c"     'delete-window
-           "M-b"     '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
-           "M-f"     '(emacs-edit (prompt-for-file "Emacs Edit:"))
-           "M-o"     '(system (format nil "gnome-open %s &" (prompt-for-file "Open:")))
-           "M-r"     '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
+(bind-keys
+ global-keymap
 
-           "M-w"     '(jump-or-exec-or-last "Vimperator" "firefox")
-           "M-e"     '(jump-or-exec-or-last "Urgent Tasks" "emacs")
-           "M-i"     irc-keymap
+ "M-tab"   '(display-window (prompt-for-window))
 
-           "Super-Ret" '(prompt-for-music)
+ "M-c"     'delete-window
+ "M-b"     '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
+ "M-f"     '(emacs-edit (prompt-for-file "Emacs Edit:"))
+ "M-o"     '(system (format nil "gnome-open %s &" (prompt-for-file "Open:")))
+ "M-r"     '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
 
-           "M-Ret"   '(system (concat (prompt #:title "Run:") " &"))
-           "M-`"     '(call-command (prompt-for-command "Sawfish Command:"))
+ "M-w"     '(jump-or-exec-or-last "Vimperator" "firefox")
+ "M-e"     '(jump-or-exec-or-last "Urgent Tasks" "emacs")
+ "M-i"     irc-keymap
 
-           "M-u"     'undo
+ "M-Ret"   '(system (concat (prompt #:title "Run:") " &"))
+ "M-`"     '(call-command (prompt-for-command "Sawfish Command:"))
 
-           "M-Left"  'focus-west
-           "M-Right" 'focus-east
-           "M-Up"    'focus-north
-           "M-Down"  'focus-south
+ "M-u"     'undo
+ "M--"     'undo
 
-           "M-n"     '(system "firefox &")
-           "M-m"     '(emacs-run "(make-frame)")
+ "M-Left"  'focus-west
+ "M-Right" 'focus-east
+ "M-Up"    'focus-north
+ "M-Down"  'focus-south
 
-           "M-Space" '(system "urxvt &")
+ "M-n"     '(system "firefox &")
+ "M-m"     '(emacs-run "(make-frame)")
 
-           "M--"     'shrink-window-all
-           "M-="     'grow-window-all
+ "M-Space" '(system "urxvt &")
 
-           "Super-Button4-Click" 'next-workspace
-           "Super-Button5-Click" 'previous-workspace
+ "M-="     'maximize-fill-window-toggle
 
-           "Super-Button1-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_rms_arctic_hts))
-           "Super-Button3-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_slt_arctic_hts))
-)
+ "Super-Button4-Click" 'next-workspace
+ "Super-Button5-Click" 'previous-workspace
+ )
 
 (do ((i 1 (1+ i)))
     ((< (length workspace-names) i) i)
-  (bind-keys global-keymap
-             (concat "Super-" (number->string i))
-             `(activate-workspace ,i)))
+  (bind-keys
+   global-keymap
+   (concat "Super-" (number->string i))
+   `(activate-workspace ,i)))
 
-(bind-keys root-window-keymap
-           "Button2-Click" '(system "urxvt &")
-           "Button3-Click" 'popup-root-menu
-           "Button4-Click" 'next-workspace
-           "Button5-Click" 'previous-workspace)
 
-(bind-keys window-keymap
-           "M-Button3-Move" 'resize-window-interactively)
+(bind-keys
+ root-window-keymap
+
+ "Button3-Click" 'popup-root-menu
+ "Button4-Click" 'next-workspace
+ "Button5-Click" 'previous-workspace
+ )
+
+(bind-keys
+ window-keymap
+
+ "M-Button3-Move" 'resize-window-interactively
+ )
 
 ;; Custom functions
 
-(define (current-window)
-  "Returns the current window"
-  (input-focus))
-
 (define (jump-or-exec-or-last re exec)
   "Jump-or-exec, unless the window is already focused, in which case focus last window"
-  (if (string-match re (window-name (current-window)))
+  (if (string-match re (window-name (input-focus)))
       (display-window (nth 1 (window-order)))
     (jump-or-exec re exec)))
 
 (define (resize-current-window w h)
   "Resize the current window"
-  (resize-window-with-hints* (current-window) w h))
-
-(define (grow-window-all w #!optional arg)
-  (grow-window-up w arg)
-  (grow-window-right w arg)
-  (grow-window-down w arg)
-  (grow-window-left w arg))
-
-(define-command 'grow-window-all grow-window-all #:spec "%W\nP")
+  (resize-window-with-hints* (input-focus) w h))
 
 (define (rename-workspace n name)
   "Rename the Nth workspace to NAME"
@@ -133,40 +129,59 @@
 (define (irc s)
   (send-string-to-window (concat s "\n") (get-window-by-name-re "screen -x")))
 
-;; Hooks
+;; Optional Features
 
-(define (my-enter-workspace-hook)
-  (emacs-eval (format nil "(my-clock-in-on-workspace-change %S)" (nth current-workspace workspace-names))))
+;; Focus Transparency
+(when (member 'opacity *use-features*)
+  (require 'native-focus-transparency)
+  (setq *out-of-focus-trans* 0xE0000000))
 
-(add-hook 'enter-workspace-hook my-enter-workspace-hook)
+;; Org-mode Workspace Hook (http://demonastery.org/45/)
+(when (member 'org *use-features*)
+  (define (my-enter-workspace-hook)
+    (emacs-eval (format nil "(my-clock-in-on-workspace-change %S)" (nth current-workspace workspace-names))))
 
-;; Music control
+  (add-hook 'enter-workspace-hook my-enter-workspace-hook))
 
-(setq *music-list*
-      (let ((output (make-string-output-stream)))
-        (call-process (make-process output) nil "sqlite3" "/home/hashbox/.config/xmms2/medialib.db"
-                      "SELECT DISTINCT value FROM Media WHERE key = \"artist\";")
-        (string-split "\012" (get-output-stream-string output))))
+;; XMMS2 Music Control
+(when (member 'music *use-features*)
+  (setq *music-list*
+        (let ((output (make-string-output-stream)))
+          (call-process (make-process output) nil "sqlite3" "/home/zanea/.config/xmms2/medialib.db"
+                        "SELECT DISTINCT value FROM Media WHERE key = \"artist\";")
+          (string-split "\012" (get-output-stream-string output))))
 
-(define (music query)
-  "Select artist or query for playing in XMMS2"
-  (if (string-match "[:~]" query)
-      (system (format nil "nyxmms2 scap %s &" query))
-    (system (format nil "nyxmms2 scap artist:'%s' &" query))))
+  (define (music query)
+    "Select artist or query for playing in XMMS2"
+    (if (string-match "[:~]" query)
+        (system (format nil "nyxmms2 scap %s &" query))
+      (system (format nil "nyxmms2 scap artist:'%s' &" query))))
 
-(define (prompt-for-music)
-  (let ((query (prompt-from-list *music-list* "Music:" nil t)))
-    (when query
-      (music query))))
+  (define (prompt-for-music)
+    (let ((query (prompt-from-list *music-list* "Music:" nil t)))
+      (when query
+        (music query))))
+
+  (bind-keys
+   global-keymap
+   "Super-Ret" '(prompt-for-music)
+   ))
+
 
 ;; Festival
+(when (member 'festival *use-features*)
+  (require 'festival)
+  (festival-open)
 
-(require 'festival)
-(festival-open)
+  (define (festival-say-with-voice text voice)
+    (festival-eval voice)
+    (festival-say text)
+    (festival-eval '(voice_nitech_us_slt_arctic_hts)))
 
-(define (festival-say-with-voice text voice)
-  (festival-eval voice)
-  (festival-say text)
-  (festival-eval '(voice_nitech_us_slt_arctic_hts)))
+  (festival-say-workspace-on-change t)
 
-(festival-say-workspace-on-change t)
+  (bind-keys
+   global-keymap
+   "Super-Button1-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_rms_arctic_hts))
+   "Super-Button3-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_slt_arctic_hts))
+   ))
