@@ -1,6 +1,6 @@
 URxvt*background: #111111
-#URxvt*boldFont: xft:terminus-7:style=Bold
-URxvt*boldFont: -*-terminus-*-*-*-*-*-*-*-*-*-*-*-*
+URxvt*boldFont: xft:terminus-7:style=Bold
+#URxvt*boldFont: -*-terminus-*-*-*-*-*-*-*-*-*-*-*-*
 URxvt*buffered: true
 URxvt*color0: #333333
 URxvt*color1: #C15151
@@ -21,13 +21,14 @@ URxvt*color15: #BBBBBC
 URxvt*colorBD: #EEEEEE
 URxvt*colorUL: #AAAAAB
 URxvt*cursorUnderline: true
-#URxvt*font: xft:terminus-7:style=Regular
-URxvt*font: -*-terminus-*-*-*-*-*-*-*-*-*-*-*-*
+URxvt*font: xft:terminus-7:style=Regular
+#URxvt*font: -*-terminus-*-*-*-*-*-*-*-*-*-*-*-*
 URxvt*foreground: #bbbbbb
 URxvt*geometry: 84x22
 URxvt*iso14755_52: false
 URxvt*jumpScroll: true
 URxvt*perl-ext-common: matcher
+URxvt*urlLauncher: /usr/bin/firefox
 URxvt*scrollBar: false
 URxvt*skipScroll: true
 #URxvt*termName: rxvt-256color
