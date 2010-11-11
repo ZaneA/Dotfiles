@@ -25,9 +25,9 @@
 (bind-keys
  irc-keymap
 
- "M-i"   '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
- "M-p"     '(irc (x-get-selection 'PRIMARY))
- "M-s"     '(irc (prompt #:title "IRC:"))
+ "M-i" '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
+ "M-p" '(irc (x-get-selection 'PRIMARY))
+ "M-s" '(irc (prompt #:title "IRC:"))
  )
 
 (do ((i 1 (1+ i)))
@@ -41,35 +41,37 @@
 (bind-keys
  global-keymap
 
- "M-tab"   '(display-window (prompt-for-window))
+ ; Keymaps
+ "M-i"                 irc-keymap
 
- "M-c"     'delete-window
- "M-b"     '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
- "M-f"     '(emacs-edit (prompt-for-file "Emacs Edit:"))
- "M-o"     '(system (format nil "gnome-open %s &" (prompt-for-file "Open:")))
- "M-r"     '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
+ "M-tab"               '(display-window (prompt-for-window))
 
- "M-w"     '(jump-or-exec-or-last "Vimperator" "firefox")
- "M-e"     '(jump-or-exec-or-last "Urgent Tasks" "emacs")
- "M-i"     irc-keymap
+ "M-c"                 'delete-window
+ "M-b"                 '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
+ "M-f"                 '(emacs-edit (prompt-for-file "Emacs Edit:"))
+ "M-o"                 '(system (format nil "gnome-open %s &" (prompt-for-file "Open:")))
+ "M-r"                 '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
 
- "M-Ret"   '(system (concat (prompt #:title "Run:") " &"))
- "M-`"     '(call-command (prompt-for-command "Sawfish Command:"))
+ "M-w"                 '(jump-or-exec-or-last "Vimperator" "firefox")
+ "M-e"                 '(jump-or-exec-or-last "Urgent Tasks" "emacs")
 
- "M-u"     'undo
- "M--"     'undo
+ "M-Ret"               '(system (concat (prompt #:title "Run:") " &"))
+ "M-`"                 '(call-command (prompt-for-command "Sawfish Command:"))
 
- "M-Left"  'focus-west
- "M-Right" 'focus-east
- "M-Up"    'focus-north
- "M-Down"  'focus-south
+ "M-u"                 'undo
+ "M--"                 'undo
 
- "M-n"     '(system "firefox &")
- "M-m"     '(emacs-run "(make-frame)")
+ "M-Left"              'focus-west
+ "M-Right"             'focus-east
+ "M-Up"                'focus-north
+ "M-Down"              'focus-south
 
- "M-Space" '(system "urxvt &")
+ "M-n"                 '(system "firefox &")
+ "M-m"                 '(emacs-run "(make-frame)")
 
- "M-="     'maximize-fill-window-toggle
+ "M-Space"             '(system "urxvt &")
+
+ "M-="                 'maximize-fill-window-toggle
 
  "Super-Button4-Click" 'next-workspace
  "Super-Button5-Click" 'previous-workspace
@@ -164,6 +166,7 @@
 
   (bind-keys
    global-keymap
+
    "Super-Ret" '(prompt-for-music)
    ))
 
@@ -182,12 +185,15 @@
 
   (bind-keys
    global-keymap
+
    "Super-Button1-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_rms_arctic_hts))
    "Super-Button3-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_slt_arctic_hts))
    ))
 
 ;; Mouse Gestures
 (when (member 'mouse-gestures *use-features*)
+  (require 'grow-pack)
+
   (setq *gestures-initial-xy* '(0 . 0))
 
   (define (start-gesture)
@@ -204,17 +210,17 @@
            (new-y (cdr new-xy)))
       (cond
        ((> (- initial-y threshold) new-y)
-        (eval (or up '(grow-window-up (current-window)))))
+        (eval (or up    '(grow-window-up (input-focus)))))
        ((> (- initial-x threshold) new-x)
-        (eval (or left '(grow-window-left (current-window)))))
+        (eval (or left  '(grow-window-left (input-focus)))))
        ((< (+ initial-y threshold) new-y)
-        (eval (or down '(grow-window-down (current-window)))))
+        (eval (or down  '(grow-window-down (input-focus)))))
        ((< (+ initial-x threshold) new-x)
-        (eval (or right '(grow-window-right (current-window))))))))
+        (eval (or right '(grow-window-right (input-focus))))))))
 
   (bind-keys
    global-keymap
 
    "Super-Button2-Click" '(start-gesture)
-   "Super-Button2-Off" '(perform-gesture)
+   "Super-Button2-Off"   '(perform-gesture)
    ))
