@@ -15,6 +15,7 @@
 
 ; Optional Features to load
 (setq *use-features* '(music opacity org))
+(setq *music-player* 'mpd) ; mpd or xmms2
 
 (setq help-display-info-function emacs-call-info)
 
@@ -131,6 +132,13 @@
 (define (irc s)
   (send-string-to-window (concat s "\n") (get-window-by-name-re "screen -x")))
 
+; http://www.mail-archive.com/sawfish-list@gnome.org/msg04711.html
+(define (remove-duplicates input)
+  "Remove duplicate entries from `input'"
+  (do ((a '() (if (member (car input) a) a (cons (car input) a)))
+       (input input (cdr input)))
+      ((null input) (reverse a))))
+
 ;; Optional Features
 
 ;; Focus Transparency
@@ -145,19 +153,29 @@
 
   (add-hook 'enter-workspace-hook my-enter-workspace-hook))
 
-;; XMMS2 Music Control
+;; Music Control
 (when (member 'music *use-features*)
   (setq *music-list*
         (let ((output (make-string-output-stream)))
-          (call-process (make-process output) nil "sqlite3" "/home/zanea/.config/xmms2/medialib.db"
-                        "SELECT DISTINCT value FROM Media WHERE key = \"artist\";")
-          (string-split "\012" (get-output-stream-string output))))
+          (cond
+           ((= *music-player* 'xmms2)
+            (call-process (make-process output) nil "sqlite3" (concat (getenv "XDG_CONFIG_HOME") "/xmms2/medialib.db")
+                          "SELECT DISTINCT value FROM Media WHERE key = \"artist\";"))
+           ((= *music-player* 'mpd)
+            (call-process (make-process output) nil "mpc" "list" "artist")))
+          (sort (remove-duplicates
+                 (string-split "\012" (string-downcase
+                                       (get-output-stream-string output)))))))
 
   (define (music query)
-    "Select artist or query for playing in XMMS2"
-    (if (string-match "[:~]" query)
-        (system (format nil "nyxmms2 scap %s &" query))
-      (system (format nil "nyxmms2 scap artist:'%s' &" query))))
+    "Select artist for playing in Music player"
+    (cond
+     ((= *music-player* 'xmms2)
+      (if (string-match "[:~]" query)
+          (system (format nil "nyxmms2 scap %s &" query))
+        (system (format nil "nyxmms2 scap artist:'%s' &" query))))
+     ((= *music-player* 'mpd)
+      (system (format nil "%s/Documents/bin/artist %S" (user-home-directory) query)))))
 
   (define (prompt-for-music)
     (let ((query (prompt-from-list *music-list* "Music:" nil t)))
