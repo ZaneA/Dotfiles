@@ -50,7 +50,7 @@
      (org-link ((t (:foreground "#667088" :slant italic :height 0.8))))
      (org-date ((t (:foreground "#88bbff"))))
      (org-agenda-date ((t (:foreground "#88bbff"))))
-     (org-level-1 ((t (:foreground "#eeeeee" :underline t :bold t :height 1.3))))
+     (org-level-1 ((t (:foreground "#eeeeee" :bold t :height 1.3))))
      (org-level-2 ((t (:foreground "#aaaaaa" :height 1.1))))
      (org-level-3 ((t (:foreground "#888888" :height 1.0))))
      (org-level-4 ((t (:foreground "#888888" :slant italic))))
@@ -84,6 +84,7 @@
 (setq visible-bell t)
 (setq ring-bell-function (lambda () ()))
 (setq mouse-autoselect-window t)
+(set-mouse-color "white")
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -376,6 +377,8 @@ plus add font-size: 8pt"
 
 (add-to-list 'compilation-finish-functions 'compilation-troll)
 
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
 ;(autoload 'geben "geben" "PHP Debugger on Emacs" t)
 
 ;(autoload 'moz-minor-mode "moz" "Mozilla Minor and Inferior Mozilla Modes" t)
@@ -422,7 +425,7 @@ plus add font-size: 8pt"
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(default ((t (:height 100 :foundry "microsoft" :family "Consolas"))))
- '(variable-pitch ((t (:height 100 :foundry "microsoft" :family "Corbel"))))
+ '(variable-pitch ((t (:height 96 :foundry "microsoft" :family "Segoe UI"))))
  '(linum ((t (:inherit (shadow default) :height 100 :foundry "microsoft" :family "Corbel" :foreground "grey30"))))
  '(mumamo-background-chunk-major ((((class color) (min-colors 88) (background dark)) nil)))
  '(mumamo-background-chunk-submode1 ((((class color) (min-colors 88) (background dark)) nil)))
