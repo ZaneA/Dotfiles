@@ -15,7 +15,7 @@
 
 ; Optional Features to load
 (setq *use-features* '(music opacity org))
-(setq *music-player* 'mpd) ; mpd or xmms2
+(setq *music-player* 'musicd) ; musicd, mpd or xmms2
 
 (setq help-display-info-function emacs-call-info)
 
@@ -156,20 +156,27 @@
 ;; Music Control
 (when (member 'music *use-features*)
   (setq *music-list*
-        (let ((output (make-string-output-stream)))
-          (cond
-           ((= *music-player* 'xmms2)
-            (call-process (make-process output) nil "sqlite3" (concat (getenv "XDG_CONFIG_HOME") "/xmms2/medialib.db")
-                          "SELECT DISTINCT value FROM Media WHERE key = \"artist\";"))
-           ((= *music-player* 'mpd)
-            (call-process (make-process output) nil "mpc" "list" "artist")))
-          (sort (remove-duplicates
-                 (string-split "\012" (string-downcase
-                                       (get-output-stream-string output)))))))
+        (if (= *music-player* 'musicd)
+            (sort (remove-duplicates
+                   (append
+                    (directory-files "/media/media/Music")
+                    (directory-files "/media/media/TV Shows"))))
+          (let ((output (make-string-output-stream)))
+            (cond
+             ((= *music-player* 'xmms2)
+              (call-process (make-process output) nil "sqlite3" (concat (getenv "XDG_CONFIG_HOME") "/xmms2/medialib.db")
+                            "SELECT DISTINCT value FROM Media WHERE key = \"artist\";"))
+             ((= *music-player* 'mpd)
+              (call-process (make-process output) nil "mpc" "list" "artist")))
+            (sort (remove-duplicates
+                   (string-split "\012" (string-downcase
+                                         (get-output-stream-string output))))))))
 
   (define (music query)
     "Select artist for playing in Music player"
     (cond
+     ((= *music-player* 'musicd)
+      (system (format nil "%s/Documents/bin/play %s &" (user-home-directory) query)))
      ((= *music-player* 'xmms2)
       (if (string-match "[:~]" query)
           (system (format nil "nyxmms2 scap %s &" query))
