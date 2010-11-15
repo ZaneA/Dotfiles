@@ -36,6 +36,8 @@ esac
 
 # Options
 setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslastprompt listtypes print_exit_value prompt_subst
+autoload -U compinit
+compinit
 
 # Set up PATH
 PATH=$PATH:~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/
