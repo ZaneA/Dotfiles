@@ -44,7 +44,7 @@ PATH=$PATH:~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/
 
 # Handy aliases
 alias ls='ls --color=auto -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
-alias ec='emacsclient -n'
+alias ec='emacsclient -nc'
 
 # Not so handy aliases
 alias fuckin='sudo' fucking='sudo'
