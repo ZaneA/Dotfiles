@@ -50,7 +50,7 @@
  "M-c"                 'delete-window
  "M-b"                 '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
  "M-f"                 '(emacs-edit (prompt-for-file "Emacs Edit:"))
- "M-o"                 '(system (format nil "gnome-open %s &" (prompt-for-file "Open:")))
+ "M-o"                 '(system (format nil "xdg-open %s &" (prompt-for-file "Open:")))
  "M-r"                 '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
 
  "M-w"                 '(jump-or-exec-or-last "Vimperator" "firefox")
@@ -160,6 +160,7 @@
             (sort (remove-duplicates
                    (append
                     (directory-files "/media/media/Music")
+                    (directory-files "/media/media/Movies")
                     (directory-files "/media/media/TV Shows"))))
           (let ((output (make-string-output-stream)))
             (cond
