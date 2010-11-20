@@ -5,7 +5,7 @@
 (add-to-list 'load-path "~/.emacs.d")
 
 ; Clean up the window a bit
-(menu-bar-mode -1)
+;(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (setq initial-frame-alist '((width . 100) (height . 50))) ; Set frame width/height
@@ -47,14 +47,14 @@
      (font-lock-warning-face ((t (:foreground "#ffbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
      (show-paren-mismatch-face ((t (:foreground "black" :background "#dd4444" :bold t))))
-     (org-link ((t (:foreground "#667088" :slant italic :height 0.8))))
+     (org-link ((t (:foreground "#667088" :italic t :height 1.0))))
      (org-date ((t (:foreground "#88bbff"))))
      (org-agenda-date ((t (:foreground "#88bbff"))))
      (org-level-1 ((t (:foreground "#eeeeee" :bold t :height 1.3))))
      (org-level-2 ((t (:foreground "#aaaaaa" :height 1.1))))
      (org-level-3 ((t (:foreground "#888888" :height 1.0))))
      (org-level-4 ((t (:foreground "#888888" :slant italic))))
-     (org-tag ((t (:foreground "#559988" :background "#000000"))))
+     (org-tag ((t (:foreground "#559988"))))
      (org-todo ((t (:foreground "#ffbbbb" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
      (org-warning ((t (:foreground "#775555" :italic t))))
@@ -122,7 +122,7 @@
 
 (setq scheme-program-name "csi -:c")
 
-(setq compilation-auto-jump-to-first-error t)
+(setq compilation-auto-jump-to-first-error t) ;; This still seems to jump to warnings.. will fix later
 (setq compilation-skip-threshold 2)
 
 ;; Global keybindings
@@ -146,11 +146,20 @@
   (google-im-feeling-lucky (current-word)))
 
 (global-set-key (kbd "<f1>") 'google-word-at-point)
-(global-set-key (kbd "<f2>") (lambda () (interactive) (call-interactively 'google)))
-(global-set-key (kbd "<f3>") (lambda () (interactive) (call-interactively 'google-im-feeling-lucky)))
+(global-set-key (kbd "<f2>") 'google)
+(global-set-key (kbd "<f3>") 'google-im-feeling-lucky)
 
 (setq compilation-read-command nil)
 (global-set-key (kbd "<f5>") 'smart-compile)
+
+(defun eval-and-replace ()
+  "Replace the preceding sexp with its value."
+  (interactive)
+  (backward-kill-sexp)
+  (princ (eval (read (current-kill 0)))
+         (current-buffer)))
+
+(global-set-key (kbd "C-c C-e") 'eval-and-replace)
 
 ;; ctrl-tab,ctrl-shift-tab to move between buffers/windows
 (defun switch-tab-or-window-forward ()
@@ -293,7 +302,7 @@ plus add font-size: 8pt"
 (setq scss-sass-command "~/.gem/ruby/1.8/bin/sass")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode espresso lorem-ipsum midnight magpie
+(dolist (lib '(vimpulse rainbow-mode lambda-mode espresso lorem-ipsum midnight magpie xmlgen
                tabbar todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
@@ -409,33 +418,8 @@ plus add font-size: 8pt"
 (setq rcirc-default-nick "Hash")
 
 ;; Custom set variables
-
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(tabbar-cycle-scope (quote tabs))
- '(tabbar-mode t nil (tabbar))
- '(tabbar-use-images nil))
-
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(default ((t (:height 100 :foundry "microsoft" :family "Consolas"))))
- '(variable-pitch ((t (:height 96 :foundry "microsoft" :family "Segoe UI"))))
- '(linum ((t (:inherit (shadow default) :height 100 :foundry "microsoft" :family "Corbel" :foreground "grey30"))))
- '(mumamo-background-chunk-major ((((class color) (min-colors 88) (background dark)) nil)))
- '(mumamo-background-chunk-submode1 ((((class color) (min-colors 88) (background dark)) nil)))
- '(mumamo-background-chunk-submode2 ((((class color) (min-colors 88) (background dark)) nil)))
- '(mumamo-background-chunk-submode3 ((((class color) (min-colors 88) (background dark)) nil)))
- '(mumamo-background-chunk-submode4 ((((class color) (min-colors 88) (background dark)) nil)))
- '(tabbar-button ((t (:inherit tabbar-default :foreground "#000000"))))
- '(tabbar-default ((((class color grayscale) (background dark)) (:inherit variable-pitch :background "black" :foreground "grey70" :height 1.1))))
- '(tabbar-selected ((t (:inherit tabbar-default :bold t :foreground "grey80" :box (:line-width 6 :color "black")))))
- '(tabbar-unselected ((t (:inherit tabbar-default :box (:line-width 6 :color "black"))))))
+(setq custom-file "~/.emacs-custom.el")
+(load custom-file)
 
 ;; Start Emacs Server
 (server-start)
