@@ -72,6 +72,8 @@
 
  "M-Space"             '(system "urxvt &")
 
+ "Super-l"             '(system "i3lock -p default -c 000000")
+
  "M-="                 'maximize-fill-window-toggle
 
  "Super-Button4-Click" 'next-workspace
