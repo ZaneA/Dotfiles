@@ -11,6 +11,7 @@
 (require 'emacs)
 (require 'undo)
 (require 'focus-by-direction)
+(require 'home-ws) ; Handy!
 
 
 ;;; Personal Settings
@@ -166,17 +167,24 @@
 
 ;; Numbered Workspaces
 ;; TODO Move this to the org feature?
-(define (update-workspaces)
+(define (update-workspaces #!optional workspaces)
   "Create Workspaces (including org-mode tags)"
   (setq workspace-names '())
   (do ((i 1 (1+ i)))
       ((< *workspace-count* i) i)
     (append! workspace-names (list (number->string i))))
-  (append! workspace-names (emacs-eval "(my-org-get-tags)" 'parse)))
+  (append! workspace-names (or workspaces (emacs-eval "(my-org-get-tags)" 'parse))))
 
 (define-command 'update-workspaces update-workspaces)
 
 (update-workspaces)
+
+(define (goto-workspace name)
+  "Switches workspace by name"
+  (do ((i 0 (1+ i)))
+      ((< (length workspace-names) i) i)
+    (when (equal (nth i workspace-names) name)
+      (call-command 'activate-workspace (1+ i)))))
 
 
 ;;; Optional Features
