@@ -5,6 +5,7 @@
 (require 'sawfish.wm.commands.jump-or-exec)
 (require 'sawfish.wm.util.selection)
 (require 'sawfish.wm.util.window-order)
+(require 'sawfish.wm.ext.match-window)
 (require 'prompt)
 (require 'prompt-menu)
 (require 'emacs)
@@ -17,7 +18,27 @@
 (setq *use-features* '(music opacity org))
 (setq *music-player* 'musicd) ; musicd, mpd or xmms2
 
+(setq *workspace-count* 4) ; Amount of unnamed workspaces to create
+
 (setq help-display-info-function emacs-call-info)
+
+(defmacro append! (list1 list2)
+  `(setq ,list1 (append ,list1 ,list2)))
+
+(define (update-workspaces)
+  "Create Workspaces (including org-mode tags)"
+  (setq workspace-names '())
+  (do ((i 1 (1+ i)))
+      ((< *workspace-count* i) i)
+    (append! workspace-names (list (number->string i))))
+  (append! workspace-names (emacs-eval "(my-org-get-tags)" 'parse)))
+
+(define-command 'update-workspaces update-workspaces)
+
+(update-workspaces)
+
+;; Window Matchers
+(add-window-matcher 'WM_CLASS "MPlayer" '(depth . 2) '(sticky . t))
 
 ;; Keymaps
 
@@ -26,7 +47,7 @@
 (bind-keys
  irc-keymap
 
- "M-i" '(jump-or-exec-or-last "screen -x" "urxvt -e ssh 10.1.1.9 screen -x")
+ "M-i" '(jump-or-exec-or-last "screen -x" "urxvt -e sh -c 'ssh hashbox@10.1.1.9'")
  "M-p" '(irc (x-get-selection 'PRIMARY))
  "M-s" '(irc (prompt #:title "IRC:"))
  )
@@ -37,7 +58,6 @@
    irc-keymap
    (concat "M-" (number->string i))
    `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "screen -x"))))
-
 
 (bind-keys
  global-keymap
