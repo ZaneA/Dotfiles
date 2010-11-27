@@ -239,13 +239,16 @@
 
 (appt-activate 1) ; Enable appointment notification
 
+(defun clean-org-heading (heading)
+  (replace-regexp-in-string "\\[\\[.*\\]\\[\\\(.*\\\)\\]\\]" "\\1" heading))
+
 (defun update-org ()
   "Update org-mode related stuff, appointments, modeline etc"
   (setq urgent-org-mode-line
         (mapconcat 'identity
                    (org-map-entries
                     (lambda ()
-                      (nth 4 (org-heading-components)))
+                      (clean-org-heading (nth 4 (org-heading-components))))
                     "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", "))
   (setq appt-time-msg-list nil)
   (org-agenda-to-appt)
@@ -263,6 +266,23 @@
   (mapcar (lambda (tag)
             (substring-no-properties (car tag)))
           (org-global-tags-completion-table)))
+
+(defun my-goto-workspace (name)
+  (saw-client-eval (format "(goto-workspace %S)" name)))
+
+(defun new-clocked-task (description tag)
+  "Create a new clocked task"
+  (interactive "sDescription: \nsTag: ")
+  (insert (format "** TODO [[elisp:%S][%s]] :%s:"
+                  `(progn
+                     (org-clock-in)
+                     (my-goto-workspace ,tag)) description tag))
+  (saw-client-eval (format "(update-workspaces '%S)" (my-org-get-tags))))
+
+(org-add-link-type "wm" 'org-sawfish)
+(defun org-sawfish (exp)
+  "Org link handler for sawfish"
+  (saw-client-eval exp))
 
 (defun fit-window-to-region ()
   "Fits the current window to the selected region"
