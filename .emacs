@@ -222,18 +222,20 @@
         (:propertize mode-line-process
                      face 'mode-line-mode-process-face)
         "   "
-        ;(-3 . "%P")
-        ;"   "
         (:propertize urgent-org-mode-line
                      face 'mode-line-tasks-face)
         "   "
         "-%-"
         )))
 
-(setq org-agenda-files '("~/todo.org"))
-(setq org-confirm-shell-link-function 'y-or-n-p
-      org-confirm-elisp-link-function 'y-or-n-p)
-(setq org-return-follows-link t)
+; Org-mode settings
+(setq org-agenda-files '("~/todo.org")
+      org-confirm-shell-link-function nil
+      org-confirm-elisp-link-function nil
+      org-return-follows-link t
+      org-startup-folded 'showall
+      org-hide-leading-stars 'hidestars
+      org-odd-levels-only 'odd)
 
 (appt-activate 1) ; Enable appointment notification
 
@@ -254,8 +256,13 @@
 (defun my-clock-in-on-workspace-change (workspace)
   (org-clock-out t)
   (org-map-entries
-   (lambda () (org-clock-in))
+   'org-clock-in
    workspace 'agenda))
+
+(defun my-org-get-tags ()
+  (mapcar (lambda (tag)
+            (substring-no-properties (car tag)))
+          (org-global-tags-completion-table)))
 
 (defun fit-window-to-region ()
   "Fits the current window to the selected region"
@@ -310,7 +317,7 @@ plus add font-size: 8pt"
  uniquify-buffer-name-style 'reverse
  uniquify-separator ":")
 
-(setq scss-sass-command "~/.gem/ruby/1.8/bin/sass")
+(setq scss-sass-command "sass")
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode espresso lorem-ipsum midnight magpie xmlgen
@@ -339,6 +346,8 @@ plus add font-size: 8pt"
   "Apply my minor modes and custom font locks"
   (rainbow-mode 1)
   (lambda-mode 1)
+  ; Keybindings
+  ;(local-set-key (kbd "C-c C-e") 'eval-and-replace)
   (when (not (string= "org-mode" major-mode))
     (font-lock-add-keywords
      nil
@@ -353,13 +362,13 @@ plus add font-size: 8pt"
 
 (defun my-variable-pitch-mode ()
   "Apply variable pitch stuff"
+  (text-scale-increase 2)
   (variable-pitch-mode t)
   (setq truncate-lines nil))
 
 (add-hook 'mail-mode-hook 'my-variable-pitch-mode)
 (add-hook 'text-mode-hook 'my-variable-pitch-mode)
 (add-hook 'Info-mode-hook 'my-variable-pitch-mode)
-(add-hook 'org-mode-hook 'my-variable-pitch-mode)
 
 (defun my-scheme-mode-hook ()
   "Apply scheme mode stuff"
@@ -375,7 +384,7 @@ plus add font-size: 8pt"
 
 (defun my-nxhtml-mode-hook ()
   "Apply nxhtml mode stuff"
-  (define-key nxhtml-mode-map (kbd "C-c C-c")
+  (local-set-key (kbd "C-c C-c")
     'insert-xml))
 
 (add-hook 'nxhtml-mode-hook 'my-nxhtml-mode-hook)
