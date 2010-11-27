@@ -4,8 +4,11 @@
 
 # History
 HISTFILE=~/.history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=1000
+SAVEHIST=1000
+
+setopt append_history inc_append_history extended_history hist_find_no_dups hist_ignore_all_dups
+setopt hist_reduce_blanks hist_ignore_space hist_no_store hist_save_no_dups
 
 # Git Prompt
 # Partially from OH-MY-ZSH
@@ -40,7 +43,9 @@ autoload -U compinit
 compinit
 
 # Set up PATH
-PATH=$PATH:~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/
+PATH=~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/:$PATH
+
+BROWSER=firefox
 
 # Handy aliases
 alias ls='ls --color=auto -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
