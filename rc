@@ -1,6 +1,6 @@
-;; -*- mode: Sawfish -*-
+;;; -*- mode: Sawfish -*-
 
-;; Require stuff
+;;; Require stuff
 
 (require 'sawfish.wm.commands.jump-or-exec)
 (require 'sawfish.wm.util.selection)
@@ -12,38 +12,27 @@
 (require 'undo)
 (require 'focus-by-direction)
 
-;; Settings
 
-; Optional Features to load
-(setq *use-features* '(music opacity org))
+;;; Personal Settings
+
+(setq *use-features* '(music org xmobar)) ;opacity
 (setq *music-player* 'musicd) ; musicd, mpd or xmms2
 
 (setq *workspace-count* 4) ; Amount of unnamed workspaces to create
 
 (setq help-display-info-function emacs-call-info)
 
-(defmacro append! (list1 list2)
-  `(setq ,list1 (append ,list1 ,list2)))
 
-(define (update-workspaces)
-  "Create Workspaces (including org-mode tags)"
-  (setq workspace-names '())
-  (do ((i 1 (1+ i)))
-      ((< *workspace-count* i) i)
-    (append! workspace-names (list (number->string i))))
-  (append! workspace-names (emacs-eval "(my-org-get-tags)" 'parse)))
+;;; Window Matchers
 
-(define-command 'update-workspaces update-workspaces)
-
-(update-workspaces)
-
-;; Window Matchers
 (add-window-matcher 'WM_CLASS "MPlayer" '(depth . 2) '(sticky . t))
 
-;; Keymaps
+
+;;; Keymaps
 
 (defvar irc-keymap (make-keymap) "Keymap for IRC")
 
+; IRC bindings
 (bind-keys
  irc-keymap
 
@@ -52,6 +41,7 @@
  "M-s" '(irc (prompt #:title "IRC:"))
  )
 
+; alt-n to switch irssi windows
 (do ((i 1 (1+ i)))
     ((< 9 i) i)
   (bind-keys
@@ -59,10 +49,10 @@
    (concat "M-" (number->string i))
    `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "screen -x"))))
 
+; Global bindings
 (bind-keys
  global-keymap
 
- ; Keymaps
  "M-i"                 irc-keymap
 
  "M-tab"               '(display-window (prompt-for-window))
@@ -100,6 +90,7 @@
  "Super-Button5-Click" 'previous-workspace
  )
 
+; Workspace switching
 (do ((i 1 (1+ i)))
     ((< (length workspace-names) i) i)
   (bind-keys
@@ -107,7 +98,7 @@
    (concat "Super-" (number->string i))
    `(activate-workspace ,i)))
 
-
+; Root window bindings
 (bind-keys
  root-window-keymap
 
@@ -116,13 +107,22 @@
  "Button5-Click" 'previous-workspace
  )
 
+; Window bindings
 (bind-keys
  window-keymap
 
  "M-Button3-Move" 'resize-window-interactively
  )
 
-;; Custom functions
+
+;;; Macros
+
+(defmacro append! (list1 list2)
+  "Destructive Append Macro"
+  `(setq ,list1 (append ,list1 ,list2)))
+
+
+;;; Custom functions
 
 (define (jump-or-exec-or-last re exec)
   "Jump-or-exec, unless the window is already focused, in which case focus last window"
@@ -144,6 +144,7 @@
                         item)) workspace-names))))
 
 (define (send-string-to-window s w)
+  "What it says on the tin"
   (let ((i 0))
     (while (< i (length s))
            (let* ((ch (substring s i (setq i (1+ i))))
@@ -152,6 +153,7 @@
              (synthesize-event e w)))))
 
 (define (irc s)
+  "Send string to IRC window, pressing enter"
   (send-string-to-window (concat s "\n") (get-window-by-name-re "screen -x")))
 
 ; http://www.mail-archive.com/sawfish-list@gnome.org/msg04711.html
@@ -161,12 +163,29 @@
        (input input (cdr input)))
       ((null input) (reverse a))))
 
-;; Optional Features
+
+;; Numbered Workspaces
+;; TODO Move this to the org feature?
+(define (update-workspaces)
+  "Create Workspaces (including org-mode tags)"
+  (setq workspace-names '())
+  (do ((i 1 (1+ i)))
+      ((< *workspace-count* i) i)
+    (append! workspace-names (list (number->string i))))
+  (append! workspace-names (emacs-eval "(my-org-get-tags)" 'parse)))
+
+(define-command 'update-workspaces update-workspaces)
+
+(update-workspaces)
+
+
+;;; Optional Features
 
 ;; Focus Transparency
 (when (member 'opacity *use-features*)
   (require 'native-focus-transparency)
   (setq *out-of-focus-trans* 0xE0000000))
+
 
 ;; Org-mode Workspace Hook (http://demonastery.org/45/)
 (when (member 'org *use-features*)
@@ -174,6 +193,7 @@
     (emacs-eval (format nil "(my-clock-in-on-workspace-change %S)" (nth current-workspace workspace-names))))
 
   (add-hook 'enter-workspace-hook my-enter-workspace-hook))
+
 
 ;; Music Control
 (when (member 'music *use-features*)
@@ -208,6 +228,7 @@
       (system (format nil "%s/Documents/bin/artist %S" (user-home-directory) query)))))
 
   (define (prompt-for-music)
+    "Prompt for a Music Query to pass to the Active Player"
     (let ((query (prompt-from-list *music-list* "Music:" nil t)))
       (when query
         (music query))))
@@ -225,6 +246,7 @@
   (festival-open)
 
   (define (festival-say-with-voice text voice)
+    "Say text using a specific voice"
     (festival-eval voice)
     (festival-say text)
     (festival-eval '(voice_nitech_us_slt_arctic_hts)))
@@ -237,6 +259,7 @@
    "Super-Button1-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_rms_arctic_hts))
    "Super-Button3-Click" '(festival-say-with-voice (x-get-selection 'PRIMARY) '(voice_nitech_us_slt_arctic_hts))
    ))
+
 
 ;; Mouse Gestures
 (when (member 'mouse-gestures *use-features*)
@@ -272,3 +295,10 @@
    "Super-Button2-Click" '(start-gesture)
    "Super-Button2-Off"   '(perform-gesture)
    ))
+
+
+;; Xmobar
+(when (member 'xmobar *use-features*)
+  (require 'xmobar)
+  (activate-xmobar
+   (concat (user-home-directory) "/.sawfish/xmobar")))
