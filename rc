@@ -165,12 +165,18 @@
 
 (update-workspaces)
 
+(define (find-workspace name)
+  "Finds a workspace by name"
+  (let ((i 0))
+    (while (and
+            (> (length workspace-names) i)
+            (not (equal (nth i workspace-names) name)))
+      (setq i (1+ i)))
+    i))
+
 (define (goto-workspace name)
   "Switches workspace by name"
-  (do ((i 0 (1+ i)))
-      ((< (length workspace-names) i) i)
-    (when (equal (nth i workspace-names) name)
-      (call-command 'activate-workspace (1+ i)))))
+  (call-command 'activate-workspace (1+ (find-workspace name))))
 
 ; Workspace switching binds
 (do ((i 1 (1+ i)))
@@ -189,8 +195,27 @@
           (call-process
            (make-process output) nil
            "sh" "-c" (format nil "ps -p %s -o size=" (car (vector->list pid))))
-          (string-replace "\012" "" (get-output-stream-string output)))
-      "N/A")))
+          (string->number (string-replace "\012| " "" (get-output-stream-string output))))
+      0)))
+
+(defun human-size (file-size)
+  "Return FILE-SIZE as a string in human-readable format using M, G, T."
+  (format nil (cond
+		((< file-size 1024.0) "%dKB")
+		((< (setq file-size (round (/ file-size 1024.0))) 10.0) "%dMB")
+		((< file-size 1024.0) "%dMB")
+		((< (setq file-size (round (/ file-size 1024.0))) 10.0) "%dGB")
+		((< file-size 1024.0) "%dGB")
+		((< (setq file-size (round (/ file-size 1024.0))) 10.0) "%dTB")
+		(t "%dTB"))
+	  file-size))
+
+(define (show-window-memory-usage w)
+  "Show Memory Usage for a Window"
+  (display-message (format nil "Window %S is using %s"
+                           (window-name w) (human-size (get-window-memory-usage w)))))
+
+(define-command 'memory-usage show-window-memory-usage #:spec "%W")
 
 
 ;;; Optional Features
@@ -201,12 +226,38 @@
   (setq *out-of-focus-trans* 0xE0000000))
 
 
-;; Org-mode Workspace Hook (http://demonastery.org/45/)
+;; Org-mode Integration (http://demonastery.org/45/)
 (when (member 'org *use-features*)
   (define (my-enter-workspace-hook)
     (emacs-eval (format nil "(my-clock-in-on-workspace-change %S)" (nth current-workspace workspace-names))))
 
-  (add-hook 'enter-workspace-hook my-enter-workspace-hook))
+  (add-hook 'enter-workspace-hook my-enter-workspace-hook)
+
+  (setq *clocked-window-ignore* '("Emacs"))
+
+  (define (is-clocked-window w)
+    "Checks if the window looks like it should be clocked"
+    (when (filter #'(lambda (x)
+                      (not (or
+                            (string-match x (window-name w) 0 t)
+                            (string-match x (window-class w) 0 t))))
+                  *clocked-window-ignore*)
+      (let ((tags (nthcdr *workspace-count* workspace-names)))
+        (when tags
+          (filter #'(lambda (x)
+                      (string-match x (window-name w) 0 t))
+                  tags)))))
+
+  (define (my-focus-change-hook w)
+    (let ((tags (is-clocked-window w)))
+      (when (and tags (not (member (find-workspace (car tags)) (window-workspaces w))))
+        (display-message
+         (format nil "Looks like you're working on the %S task..\nYou should move this to a clocked workspace.."
+                 (mapconcat #'identity tags " ")))
+        (make-timer (lambda (x) (display-message nil) (delete-timer x)) 5))))
+
+  (add-hook 'focus-in-hook my-focus-change-hook)
+  (add-hook 'property-notify-hook my-focus-change-hook))
 
 
 ;; Music Control
