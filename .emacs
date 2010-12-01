@@ -279,7 +279,7 @@
                      (my-goto-workspace ,tag)) description tag))
   (saw-client-eval (format "(update-workspaces '%S)" (my-org-get-tags))))
 
-(org-add-link-type "wm" 'org-sawfish)
+;(org-add-link-type "wm" 'org-sawfish)
 (defun org-sawfish (exp)
   "Org link handler for sawfish"
   (saw-client-eval exp))
@@ -377,6 +377,12 @@ plus add font-size: 8pt"
 
 ; Apply my minor modes and custom font locks after a mode change
 (add-hook 'after-change-major-mode-hook 'my-after-change-major-mode-hook)
+
+(defun my-emacs-lisp-mode-hook ()
+  "Apply my Emacs Lisp Mode stuff"
+  (eldoc-mode 1))
+
+(add-hook 'emacs-lisp-mode-hook 'my-emacs-lisp-mode-hook)
 
 ;(add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
 
