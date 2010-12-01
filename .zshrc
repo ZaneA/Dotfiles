@@ -57,4 +57,5 @@ alias fuckin='sudo' fucking='sudo'
 bindkey "^[[7~" beginning-of-line
 bindkey "^[[8~" end-of-line
 
+set -5
 stty stop ''
