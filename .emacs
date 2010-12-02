@@ -235,7 +235,9 @@
       org-return-follows-link t
       org-startup-folded 'showall
       org-hide-leading-stars 'hidestars
-      org-odd-levels-only 'odd)
+      org-odd-levels-only 'odd
+      org-log-into-drawer t
+      )
 
 (appt-activate 1) ; Enable appointment notification
 
@@ -256,19 +258,11 @@
 
 (run-at-time nil 300 'update-org)
 
-(defun my-clock-in-on-workspace-change (workspace)
-  (org-clock-out t)
-  (org-map-entries
-   'org-clock-in
-   workspace 'agenda))
-
-(defun my-org-get-tags ()
-  (mapcar (lambda (tag)
-            (substring-no-properties (car tag)))
-          (org-global-tags-completion-table)))
+(defmacro sawfish (form)
+  `(saw-client-eval (format "%S" ,form)))
 
 (defun my-goto-workspace (name)
-  (saw-client-eval (format "(goto-workspace %S)" name)))
+  (sawfish `(goto-workspace ,name)))
 
 (defun new-clocked-task (description tag)
   "Create a new clocked task"
@@ -277,12 +271,11 @@
                   `(progn
                      (org-clock-in)
                      (my-goto-workspace ,tag)) description tag))
-  (saw-client-eval (format "(update-workspaces '%S)" (my-org-get-tags))))
+  (sawfish `(update-workspaces ',(mapcar (lambda (tag)
+                                          (substring-no-properties (car tag)))
+                                        (org-global-tags-completion-table)))))
 
-;(org-add-link-type "wm" 'org-sawfish)
-(defun org-sawfish (exp)
-  "Org link handler for sawfish"
-  (saw-client-eval exp))
+;(org-add-link-type "wm" 'saw-client-eval)
 
 (defun fit-window-to-region ()
   "Fits the current window to the selected region"
