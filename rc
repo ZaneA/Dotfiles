@@ -90,8 +90,11 @@
  root-window-keymap
 
  "Button3-Click" 'popup-root-menu
- "Button4-Click" 'next-workspace
- "Button5-Click" 'previous-workspace
+
+; These are annoying, I find myself frequently scrolling through half of my workspaces
+; with the slip of the mouse
+;"Button4-Click" 'next-workspace
+; "Button5-Click" 'previous-workspace
  )
 
 ; Window bindings
@@ -104,6 +107,10 @@
 
 ;;; Macros
 
+(defmacro emacs (form #!optional type)
+  "Macro to allow passing a quoted form to be evaluated in Emacs"
+  `(emacs-eval (format nil "%S" ,form) ,type))
+  
 (defmacro append! (list1 list2)
   "Destructive Append Macro"
   `(setq ,list1 (append ,list1 ,list2)))
@@ -152,14 +159,17 @@
 
 
 ;; Numbered Workspaces
-;; TODO Move this to the org feature?
 (define (update-workspaces #!optional workspaces)
   "Create Workspaces (including org-mode tags)"
   (setq workspace-names '())
   (do ((i 1 (1+ i)))
       ((< *workspace-count* i) i)
     (append! workspace-names (list (number->string i))))
-  (append! workspace-names (or workspaces (emacs-eval "(my-org-get-tags)" 'parse))))
+  (append! workspace-names (or workspaces
+                               (emacs
+                                '(mapcar (lambda (tag)
+                                           (substring-no-properties (car tag)))
+                                         (org-global-tags-completion-table)) 'parse))))
 
 (define-command 'update-workspaces update-workspaces)
 
@@ -228,11 +238,28 @@
 
 ;; Org-mode Integration (http://demonastery.org/45/)
 (when (member 'org *use-features*)
-  (define (my-enter-workspace-hook)
-    (emacs-eval (format nil "(my-clock-in-on-workspace-change %S)" (nth current-workspace workspace-names))))
+  (define (org-sawfish-clock-in-by-tag tag)
+    "Tells org-mode to clock in to a task, by tag name"
+    (emacs
+     `(progn
+        (org-clock-out t)
+        (org-map-entries 'org-clock-in ,tag 'agenda))))
+  
+  ;; Clock prompt
+  (define (org-sawfish-clock-prompt)
+    "Prompt for a tag to clock in to"
+    (let ((query (prompt-from-list (nthcdr *workspace-count* workspace-names) "Clock in to:" nil t)))
+      (if query
+          (org-sawfish-clock-in-by-tag query)
+        (emacs '(org-clock-out t)))))
 
-  (add-hook 'enter-workspace-hook my-enter-workspace-hook)
+  ;; Workspace change hook
+  (define (org-sawfish-enter-workspace-hook)
+    (org-sawfish-clock-in-by-tag (nth current-workspace workspace-names)))
 
+  (add-hook 'enter-workspace-hook org-sawfish-enter-workspace-hook)
+
+  ;; Check for potentially clocked windows and remind user
   (setq *clocked-window-ignore* '("Emacs"))
 
   (define (is-clocked-window w)
@@ -248,7 +275,7 @@
                       (string-match x (window-name w) 0 t))
                   tags)))))
 
-  (define (my-focus-change-hook w)
+  (define (org-sawfish-focus-change-hook w)
     (let ((tags (is-clocked-window w)))
       (when (and tags (not (member (find-workspace (car tags)) (window-workspaces w))))
         (display-message
@@ -256,8 +283,20 @@
                  (mapconcat #'identity tags " ")))
         (make-timer (lambda (x) (display-message nil) (delete-timer x)) 5))))
 
-  (add-hook 'focus-in-hook my-focus-change-hook)
-  (add-hook 'property-notify-hook my-focus-change-hook))
+  (add-hook 'focus-in-hook org-sawfish-focus-change-hook)
+  (add-hook 'property-notify-hook org-sawfish-focus-change-hook)
+
+  ;; Function to prompt for tag to clock in to, or guess and move window to workspace
+  (define (org-sawfish-start-clock w)
+    "Moves current window to clocked workspace if applicable, or ask to clock"
+    (let ((tags (is-clocked-window w)))
+      (if tags
+          (let ((workspace (find-workspace (car tags))))
+            (move-window-to-workspace w (car (window-workspaces w)) workspace)
+            (select-workspace workspace))
+        (org-sawfish-clock-prompt))))
+
+  (bind-keys global-keymap "Super-`" '(org-sawfish-start-clock (input-focus))))
 
 
 ;; Music Control
