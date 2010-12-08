@@ -8,7 +8,6 @@
 ;(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(setq initial-frame-alist '((width . 100) (height . 50))) ; Set frame width/height
 
 ; My custom color theme :D
 (defun color-theme-hash ()
@@ -47,15 +46,16 @@
      (font-lock-warning-face ((t (:foreground "#ffbbbb"))))
      (show-paren-match-face ((t (:foreground "black" :background "#85c0ff" :bold t))))
      (show-paren-mismatch-face ((t (:foreground "black" :background "#dd4444" :bold t))))
-     (org-link ((t (:foreground "#667088" :italic t :height 1.0))))
+     (org-hide ((t (:foreground "#121212"))))
+     (org-link ((t (:foreground "#777788" :italic t :height 0.9))))
      (org-date ((t (:foreground "#88bbff"))))
      (org-agenda-date ((t (:foreground "#88bbff"))))
      (org-level-1 ((t (:foreground "#eeeeee" :bold t :height 1.3))))
-     (org-level-2 ((t (:foreground "#aaaaaa" :height 1.1))))
-     (org-level-3 ((t (:foreground "#888888" :height 1.0))))
-     (org-level-4 ((t (:foreground "#888888" :slant italic))))
-     (org-tag ((t (:foreground "#559988"))))
-     (org-todo ((t (:foreground "#ffbbbb" :bold t))))
+     (org-level-2 ((t (:foreground "#8888bb" :height 1.1))))
+     (org-level-3 ((t (:foreground "#666699" :height 1.0))))
+     (org-level-4 ((t (:foreground "#666666" :style italic))))
+     (org-tag ((t (:foreground "lightgreen"))))
+     (org-todo ((t (:foreground "#ffccee" :bold t))))
      (org-done ((t (:foreground "#44ff88" :bold t))))
      (org-warning ((t (:foreground "#775555" :italic t))))
      (org-special-keyword ((t (:background "#000000" :foreground "#eeccaa"))))
@@ -89,7 +89,7 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (setq urgent-org-mode-line "N/A")
-(setq frame-title-format '((buffer-name "%f" ("%b")) " (" mode-name ") | Urgent Tasks: " urgent-org-mode-line))
+(setq frame-title-format '((buffer-name "%f" ("%b")) " (" mode-name ")" urgent-org-mode-line))
 (setq-default cursor-in-non-selected-windows nil)
 (setq x-stretch-cursor t)
 (setq x-select-enable-clipboard t)
@@ -235,7 +235,6 @@
       org-return-follows-link t
       org-startup-folded 'showall
       org-hide-leading-stars 'hidestars
-      org-odd-levels-only 'odd
       org-log-into-drawer t
       )
 
@@ -247,11 +246,14 @@
 (defun update-org ()
   "Update org-mode related stuff, appointments, modeline etc"
   (setq urgent-org-mode-line
-        (mapconcat 'identity
-                   (org-map-entries
-                    (lambda ()
-                      (clean-org-heading (nth 4 (org-heading-components))))
-                    "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", "))
+        (let ((heading (mapconcat 'identity
+                                  (org-map-entries
+                                   (lambda ()
+                                     (clean-org-heading (nth 4 (org-heading-components))))
+                                   "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", ")))
+          (if (not (string= "" heading))
+              (concat " | Urgent Tasks: " heading)
+            "")))
   (setq appt-time-msg-list nil)
   (org-agenda-to-appt)
   nil)
@@ -364,7 +366,7 @@ plus add font-size: 8pt"
   (when (not (string= "org-mode" major-mode))
     (font-lock-add-keywords
      nil
-     '(("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
+     '(;("\\.\\|\\+\\|=\\|\\&\\||\\|-\\|\\/\\|\\%\\|\\*\\|,\\|>\\|<" (0 'font-lock-operator-face append))
        ("!" (0 'font-lock-negation-char-face append))
        ("(\\|)\\|{\\|}\\|\\[\\|\\]" (0 'font-lock-paren-face append))))))
 
