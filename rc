@@ -15,8 +15,15 @@
 
 ;;; Personal Settings
 
-(setq *use-features* '(music org xmobar)) ;opacity
+; Optional Features: music org xmobar opacity alt-theme
+(setq *use-features* '(music org xmobar alt-theme))
+
 (setq *music-player* 'musicd) ; musicd, mpd or xmms2
+
+(setq *alt-theme-gtk* "T-dark-2")
+(setq *alt-theme-gtk-extra* "/home/zanea/.gtkrc-2.0.mine")
+(setq *alt-theme-frame* "candido_dark")
+(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen)) ; Class names, downcased to test executable names
 
 (setq *workspace-count* 4) ; Amount of unnamed workspaces to create
 
@@ -36,7 +43,7 @@
 (bind-keys
  irc-keymap
 
- "M-i" '(jump-or-exec-or-last "screen -x" "urxvt -e sh -c 'ssh hashbox@10.1.1.9'")
+ "M-i" '(jump-or-exec-or-last "XChat" "xchat")
  "M-p" '(irc (x-get-selection 'PRIMARY))
  "M-s" '(irc (prompt #:title "IRC:"))
  )
@@ -47,7 +54,7 @@
   (bind-keys
    irc-keymap
    (concat "M-" (number->string i))
-   `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "screen -x"))))
+   `(synthesize-event (concat "M-" (number->string ,i)) (get-window-by-name-re "XChat"))))
 
 ; Global bindings
 (bind-keys
@@ -55,7 +62,7 @@
 
  "M-i"                 irc-keymap
 
- "M-tab"               '(display-window (prompt-for-window))
+ "M-tab"               'cycle-windows
 
  "M-c"                 'delete-window
  "M-b"                 '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
@@ -64,7 +71,8 @@
  "M-r"                 '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
 
  "M-w"                 '(jump-or-exec-or-last "Vimperator" "firefox")
- "M-e"                 '(jump-or-exec-or-last "Urgent Tasks" "emacs")
+ "M-e"                 '(jump-or-exec-or-last "Emacs" "emacs -Q --load /home/zanea/.emacs_new")
+ "M-p"                 '(jump-or-exec-or-last "Buddy List" "pidgin")
 
  "M-Ret"               '(system (concat (prompt #:title "Run:") " &"))
  "M-`"                 '(call-command (prompt-for-command "Sawfish Command:"))
@@ -118,6 +126,12 @@
 
 ;;; Custom functions
 
+(defun y-or-n-p (title)
+  "Prompt for Yes or No"
+  (string=
+   (prompt #:title (concat title " (y or n)"))
+   "y"))
+
 (define (jump-or-exec-or-last re exec)
   "Jump-or-exec, unless the window is already focused, in which case focus last window"
   (if (string-match re (window-name (input-focus)))
@@ -157,6 +171,15 @@
        (input input (cdr input)))
       ((null input) (reverse a))))
 
+(define (find-in-list name list)
+  "Finds a name in a list and returns its position"
+  (let ((i 0))
+    (while (and
+            (> (length list) i)
+            (not (equal (nth i list) name)))
+      (setq i (1+ i)))
+    i))
+
 
 ;; Numbered Workspaces
 (define (update-workspaces #!optional workspaces)
@@ -175,18 +198,9 @@
 
 (update-workspaces)
 
-(define (find-workspace name)
-  "Finds a workspace by name"
-  (let ((i 0))
-    (while (and
-            (> (length workspace-names) i)
-            (not (equal (nth i workspace-names) name)))
-      (setq i (1+ i)))
-    i))
-
 (define (goto-workspace name)
   "Switches workspace by name"
-  (call-command 'activate-workspace (1+ (find-workspace name))))
+  (call-command 'activate-workspace (1+ (find-in-list name workspace-names))))
 
 ; Workspace switching binds
 (do ((i 1 (1+ i)))
@@ -233,7 +247,7 @@
 ;; Focus Transparency
 (when (member 'opacity *use-features*)
   (require 'native-focus-transparency)
-  (setq *out-of-focus-trans* 0xE0000000))
+  (setq *out-of-focus-trans* 0xC0000000))
 
 
 ;; Org-mode Integration (http://demonastery.org/45/)
@@ -277,9 +291,9 @@
 
   (define (org-sawfish-focus-change-hook w)
     (let ((tags (is-clocked-window w)))
-      (when (and tags (not (member (find-workspace (car tags)) (window-workspaces w))))
+      (when (and tags (not (member (find-in-list (car tags) workspace-names) (window-workspaces w))))
         (display-message
-         (format nil "Looks like you're working on the %S task..\nYou should move this to a clocked workspace.."
+         (format nil "Looks like you're working on the %S task..\n\nYou can clock this in by pressing Super-` (backtick)"
                  (mapconcat #'identity tags " ")))
         (make-timer (lambda (x) (display-message nil) (delete-timer x)) 5))))
 
@@ -291,8 +305,8 @@
     "Moves current window to clocked workspace if applicable, or ask to clock"
     (let ((tags (is-clocked-window w)))
       (if tags
-          (let ((workspace (find-workspace (car tags))))
-            (move-window-to-workspace w (car (window-workspaces w)) workspace)
+          (let ((workspace (find-in-list (car tags) workspace-names)))
+            (copy-window-to-workspace w (car (window-workspaces w)) workspace)
             (select-workspace workspace))
         (org-sawfish-clock-prompt))))
 
@@ -333,14 +347,37 @@
 
   (define (prompt-for-music)
     "Prompt for a Music Query to pass to the Active Player"
-    (let ((query (prompt-from-list *music-list* "Music:" nil t)))
+    (let ((query (prompt-from-list *music-list* "Music/Artist:" nil t)))
       (when query
         (music query))))
+
+  (define (get-playlist)
+    "Get active playlist"
+    (let ((output (make-string-output-stream)))
+      (cond
+       ((= *music-player* 'musicd)
+        (call-process (make-process output) nil "sh" "-c"
+                      (concat "cat " (user-home-directory) "/.musicd/playlist"
+                              " | awk -F/ '{print $NF}'"))))
+      (remove-duplicates
+       (string-split "\012" (string-downcase
+                             (get-output-stream-string output))))))
+
+  (define (prompt-for-song)
+    "Prompt for a song to jump to in the active player"
+    (let* ((playlist (get-playlist))
+           (query (prompt-from-list playlist "Music/Song:" nil t)))
+      (when query
+        (cond
+         ((= *music-player* 'musicd)
+          (system (format nil "%s/Documents/bin/songplay %S" (user-home-directory) (1+ (find-in-list query playlist)))))))))
 
   (bind-keys
    global-keymap
 
-   "Super-Ret" '(prompt-for-music)
+   "Super-Ret"   '(prompt-for-music)
+   "Super-S-Ret" '(prompt-for-song)
+   "Super-M-Ret" '(music (prompt-for-file "Music/File:" #:start "/media/media/"))
    ))
 
 
@@ -406,3 +443,17 @@
   (require 'xmobar)
   (activate-xmobar
    (concat (user-home-directory) "/.sawfish/xmobar")))
+
+;; Alternate themes for certain apps
+(when (member 'alt-theme *use-features*)
+  (mapc #'(lambda (name)
+            (add-window-matcher 'WM_CLASS (symbol-name name) (cons 'frame-style (intern *alt-theme-frame*))))
+        *alt-theme-apps*)
+  (let ((old-system system))
+    (define (system command)
+      (old-system (if (member-if #'(lambda (el)
+                                     (string-head-eq (string-downcase command)
+                                                     (string-downcase (symbol-name el))))
+                                 *alt-theme-apps*)
+                      (format nil "GTK2_RC_FILES=%S/.themes/%S/gtk-2.0/gtkrc:%S %s" (user-home-directory) *alt-theme-gtk* *alt-theme-gtk-extra* command)
+                    command)))))
