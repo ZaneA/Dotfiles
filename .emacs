@@ -335,7 +335,7 @@ plus add font-size: 8pt"
 (setq scss-sass-command "sass")
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode espresso lorem-ipsum midnight magpie xmlgen
+(dolist (lib '(vimpulse rainbow-mode lambda-mode lorem-ipsum midnight pastebin xmlgen
                tabbar todochiku smart-compile uniquify scss-mode sawfish saw-client))
   (require lib))
 
@@ -378,6 +378,7 @@ plus add font-size: 8pt"
   (eldoc-mode 1))
 
 (add-hook 'emacs-lisp-mode-hook 'my-emacs-lisp-mode-hook)
+(add-hook 'ielm-mode-hook 'my-emacs-lisp-mode-hook)
 
 ;(add-hook 'css-mode-hook (lambda () (iimage-mode 1)))
 
@@ -385,6 +386,7 @@ plus add font-size: 8pt"
   "Apply variable pitch stuff"
   (text-scale-increase 2)
   (variable-pitch-mode t)
+  (visual-line-mode t)
   (setq truncate-lines nil))
 
 (add-hook 'mail-mode-hook 'my-variable-pitch-mode)
