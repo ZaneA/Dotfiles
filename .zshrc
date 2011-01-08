@@ -38,21 +38,29 @@ case $TERM in
 esac
 
 # Options
-setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslastprompt listtypes print_exit_value prompt_subst
+setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslastprompt listtypes print_exit_value prompt_subst extendedglob
 autoload -U compinit
 compinit
 
 # Set up PATH
-PATH=~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/:$PATH
+export PATH=~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/:$PATH
 
-BROWSER=firefox
+export BROWSER=firefox
+export EDITOR=ec
 
 # Handy aliases
 alias ls='ls --color=auto -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
 alias ec='emacsclient -nc'
 
+alias gcc='colorgcc'
+
 # Not so handy aliases
 alias fuckin='sudo' fucking='sudo'
+
+source ~/Documents/bin/live-command-coloring.sh
+
+export GTK_MODULES=rgba
+#export DE=gnome
 
 bindkey "^[[7~" beginning-of-line
 bindkey "^[[8~" end-of-line
