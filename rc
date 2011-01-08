@@ -23,7 +23,7 @@
 (setq *alt-theme-gtk* "T-dark-2")
 (setq *alt-theme-gtk-extra* "/home/zanea/.gtkrc-2.0.mine")
 (setq *alt-theme-frame* "candido_dark")
-(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen)) ; Class names, downcased to test executable names
+(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen eog)) ; Class names, downcased to test executable names
 
 (setq *workspace-count* 4) ; Amount of unnamed workspaces to create
 
@@ -33,6 +33,7 @@
 ;;; Window Matchers
 
 (add-window-matcher 'WM_CLASS "MPlayer" '(depth . 2) '(sticky . t))
+(add-window-matcher 'WM_CLASS "Pidgin" '(depth . 0) '(sticky . t))
 
 
 ;;; Keymaps
@@ -74,6 +75,9 @@
  "M-e"                 '(jump-or-exec-or-last "Emacs" "emacs -Q --load /home/zanea/.emacs_new")
  "M-p"                 '(jump-or-exec-or-last "Buddy List" "pidgin")
 
+ "XF86HomePage"        '(system "nautilus &")
+ "XF86Calculator"      '(system "urxvt &")
+
  "M-Ret"               '(system (concat (prompt #:title "Run:") " &"))
  "M-`"                 '(call-command (prompt-for-command "Sawfish Command:"))
 
@@ -99,10 +103,8 @@
 
  "Button3-Click" 'popup-root-menu
 
-; These are annoying, I find myself frequently scrolling through half of my workspaces
-; with the slip of the mouse
-;"Button4-Click" 'next-workspace
-; "Button5-Click" 'previous-workspace
+ "Button4-Click" '(system "ossmix vmix0-outvol -- +1")
+ "Button5-Click" '(system "ossmix vmix0-outvol -- -1")
  )
 
 ; Window bindings
