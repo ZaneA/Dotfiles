@@ -1,11 +1,18 @@
-Xcursor.theme: G5-Mouse
+Xft.autohint: 0
+Xft.lcdfilter: lcdlight
+Xft.hintstyle: hintslight
+Xft.hinting: 0
+Xft.antialias: 1
+Xft.dpi: 96
+Xft.rgba: none
 
-URxvt*boldFont: xft:terminus-7:style=Bold
-#URxvt*boldFont: xft:drift:style=Bold
-#URxvt*boldFont: -*-terminus-*-*-*-*-*-*-*-*-*-*-*-*
-URxvt*font: xft:terminus-7:style=Regular
-#URxvt*font: xft:drift:style=Regular
-#URxvt*font: -*-terminus-*-*-*-*-*-*-*-*-*-*-*-*
+! Xcursor.theme: G5-Mouse
+Xcursor.theme: a0x_cur1_light
+Xcursor.size: 12
+
+URxvt*boldFont: xft:profont-8:style=Bold
+URxvt*font: xft:profont-8:style=Regular
+
 URxvt*buffered: true
 URxvt*cursorUnderline: true
 URxvt*geometry: 84x22
@@ -17,15 +24,16 @@ URxvt*scrollBar: false
 URxvt*skipScroll: true
 URxvt*cutchars: "()*,<>[]{}|'
 URxvt*urgentOnBell: true
-#URxvt*transparent:          true
-#URxvt*shading:              10
-#URxvt*inheritPixmap:        true
+
 URDesktop*transparent: true
 URDesktop*inheritPixmap: true
 
 URxvt*internalBorder: 6
 
-*background:    #151515
+! *background:    #151515
+
+URxvt*depth: 32
+URxvt*background:    rgba:0000/0000/0000/dddd
 *foreground:    #cccccc
 
 ! Black
@@ -67,4 +75,3 @@ URxvt*internalBorder: 6
 
 *color7:    #d2d2d2
 *color15:    #ffffff
-
