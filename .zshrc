@@ -57,7 +57,8 @@ alias gcc='colorgcc'
 # Not so handy aliases
 alias fuckin='sudo' fucking='sudo'
 
-source ~/Documents/bin/live-command-coloring.sh
+source ~/Documents/dotfiles/live-command-coloring.sh
+#source ~/Documents/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 export GTK_MODULES=rgba
 #export DE=gnome
