@@ -50,9 +50,13 @@ export EDITOR=ec
 
 # Handy aliases
 alias ls='ls --color=auto -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
+alias mkdir='mkdir -p'
+
 alias ec='emacsclient -nc'
 
 alias gcc='colorgcc'
+
+alias csi='rlwrap csi'
 
 # Not so handy aliases
 alias fuckin='sudo' fucking='sudo'
@@ -60,6 +64,7 @@ alias fuckin='sudo' fucking='sudo'
 source ~/Documents/dotfiles/live-command-coloring.sh
 #source ~/Documents/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+#export GTK_MODULES=rgba:globalmenu-plugin
 export GTK_MODULES=rgba
 #export DE=gnome
 
