@@ -7,6 +7,8 @@
 (tool-bar-mode -1)
 (scroll-bar-mode 1)
 
+;(load-file "~/.emacs_colortheme")
+
 ;; Misc settings
 
 (setq inhibit-startup-screen t)
@@ -94,6 +96,11 @@
   (princ
    (xmlgen (read form))
    (current-buffer)))
+
+(defun insert-markdown (&optional b e)
+  "Run markdown on region and replace"
+  (interactive "r")
+  (shell-command-on-region b e markdown-command (current-buffer) t))
 
 ;; ctrl-tab,ctrl-shift-tab to move between buffers
 (defun switch-tab-or-window-forward ()
@@ -222,7 +229,7 @@ plus add font-size: 8pt"
 
 ; And some other modes
 (dolist (lib '(vimpulse rainbow-mode lambda-mode lorem-ipsum midnight pastebin xmlgen
-               smart-compile uniquify scss-mode sawfish saw-client))
+               smart-compile uniquify scss-mode sawfish saw-client kpm-list markdown-mode))
   (require lib))
 
 (midnight-delay-set 'midnight-delay "1:00am")
@@ -234,6 +241,21 @@ plus add font-size: 8pt"
    arg
    'backward-sexp
    'forward-sexp))
+
+(defun rename-file-and-buffer (new-name)
+  "Renames both current buffer and file it's visiting to NEW-NAME."
+  (interactive "sNew name: ")
+  (let ((name (buffer-name))
+ (filename (buffer-file-name)))
+    (if (not filename)
+ (message "Buffer '%s' is not visiting a file!" name)
+      (if (get-buffer new-name)
+   (message "A buffer named '%s' already exists!" new-name)
+ (progn
+   (rename-file name new-name 1)
+   (rename-buffer new-name)
+   (set-visited-file-name new-name)
+   (set-buffer-modified-p nil))))))
 
 (defun my-after-change-major-mode-hook ()
   "Apply my minor modes and custom font locks"
@@ -260,6 +282,16 @@ plus add font-size: 8pt"
 (add-hook 'mail-mode-hook 'my-variable-pitch-mode)
 (add-hook 'text-mode-hook 'my-variable-pitch-mode)
 (add-hook 'Info-mode-hook 'my-variable-pitch-mode)
+
+(defun my-php-mode-hook ()
+  (c-set-offset 'case-label '+)
+  (c-set-offset 'arglist-intro '+) ; for FAPI arrays and DBTNG
+  (c-set-offset 'arglist-cont-nonempty 'c-lineup-math) ; for DBTNG fields and values
+  (c-set-offset 'arglist-close 'c-lineup-close-paren)
+)
+
+(add-hook 'php-mode-hook 'my-php-mode-hook)
+
 
 (defun my-scheme-mode-hook ()
   "Apply scheme mode stuff"
