@@ -16,14 +16,14 @@
 ;;; Personal Settings
 
 ; Optional Features: music org xmobar opacity alt-theme
-(setq *use-features* '(music org xmobar alt-theme))
+(setq *use-features* '(music org xmobar))
 
 (setq *music-player* 'musicd) ; musicd, mpd or xmms2
 
 (setq *alt-theme-gtk* "T-dark-2")
 (setq *alt-theme-gtk-extra* "/home/zanea/.gtkrc-2.0.mine")
-(setq *alt-theme-frame* "candido_dark")
-(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen eog)) ; Class names, downcased to test executable names
+(setq *alt-theme-frame* "gperfection-hash")
+(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen eog emacs)) ; Class names, downcased to test executable names
 
 (setq *workspace-count* 4) ; Amount of unnamed workspaces to create
 
@@ -34,6 +34,17 @@
 
 (add-window-matcher 'WM_CLASS "MPlayer" '(depth . 2) '(sticky . t))
 (add-window-matcher 'WM_CLASS "Pidgin" '(depth . 0) '(sticky . t))
+(add-window-matcher 'WM_CLASS "Navigator" '(keymap-trans . (("M-w" "C-F4"))))
+
+
+;;; Menus
+
+(setq root-menu
+      `((,(_ "_Windows") . window-menu)
+        (,(_ "_Customize") . custom-menu)
+        ()
+        (,(_ "_Restart Sawfish") restart)
+        (,(_ "_Quit") quit)))
 
 
 ;;; Keymaps
@@ -66,14 +77,15 @@
  "M-tab"               'cycle-windows
 
  "M-c"                 'delete-window
+ "M-q"                 'delete-window
  "M-b"                 '(prompt-menu (emacs-buffers-menu) "Emacs Buffer:")
  "M-f"                 '(emacs-edit (prompt-for-file "Emacs Edit:"))
  "M-o"                 '(system (format nil "xdg-open %s &" (prompt-for-file "Open:")))
  "M-r"                 '(rename-workspace current-workspace (prompt #:title "Workspace Name:"))
 
- "M-w"                 '(jump-or-exec-or-last "Vimperator" "firefox")
- "M-e"                 '(jump-or-exec-or-last "Emacs" "emacs -Q --load /home/zanea/.emacs_new")
- "M-p"                 '(jump-or-exec-or-last "Buddy List" "pidgin")
+ "Super-w"             '(jump-or-exec-or-last "Vimperator" "firefox")
+ "Super-e"             '(jump-or-exec-or-last "Emacs" "emacs -Q --load /home/zanea/.emacs_new")
+ "Super-p"             '(jump-or-exec-or-last "Buddy List" "pidgin")
 
  "XF86HomePage"        '(system "nautilus &")
  "XF86Calculator"      '(system "urxvt &")
@@ -249,7 +261,7 @@
 ;; Focus Transparency
 (when (member 'opacity *use-features*)
   (require 'native-focus-transparency)
-  (setq *out-of-focus-trans* 0xC0000000))
+  (setq *out-of-focus-trans* 0x40000000))
 
 
 ;; Org-mode Integration (http://demonastery.org/45/)
@@ -299,8 +311,8 @@
                  (mapconcat #'identity tags " ")))
         (make-timer (lambda (x) (display-message nil) (delete-timer x)) 5))))
 
-  (add-hook 'focus-in-hook org-sawfish-focus-change-hook)
-  (add-hook 'property-notify-hook org-sawfish-focus-change-hook)
+  ;(add-hook 'focus-in-hook org-sawfish-focus-change-hook)
+  ;(add-hook 'property-notify-hook org-sawfish-focus-change-hook)
 
   ;; Function to prompt for tag to clock in to, or guess and move window to workspace
   (define (org-sawfish-start-clock w)
@@ -312,7 +324,11 @@
             (select-workspace workspace))
         (org-sawfish-clock-prompt))))
 
-  (bind-keys global-keymap "Super-`" '(org-sawfish-start-clock (input-focus))))
+  (bind-keys global-keymap "Super-`" '(org-sawfish-start-clock (input-focus)))
+
+  (setq root-menu (append `((,(_ "_Org-Mode") . ((,(_ "_Clock in to Tag") (org-sawfish-clock-prompt))))
+                            ())
+                          root-menu)))
 
 
 ;; Music Control
@@ -380,7 +396,13 @@
    "Super-Ret"   '(prompt-for-music)
    "Super-S-Ret" '(prompt-for-song)
    "Super-M-Ret" '(music (prompt-for-file "Music/File:" #:start "/media/media/"))
-   ))
+   )
+
+  (setq root-menu (append `((,(_ "_Music") . ((,(_ "Play _Artist") (prompt-for-song))
+                                              (,(_ "Play _Song") (prompt-for-song))
+                                              (,(_ "Play _File") (music (prompt-for-file "Music/File:" #:start "/media/media/")))))
+                            ())
+                          root-menu)))
 
 
 ;; Festival
