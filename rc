@@ -16,14 +16,15 @@
 ;;; Personal Settings
 
 ; Optional Features: music org xmobar opacity alt-theme
-(setq *use-features* '(music org xmobar))
+(setq *use-features* '(music org xmobar alt-theme))
 
 (setq *music-player* 'musicd) ; musicd, mpd or xmms2
 
 (setq *alt-theme-gtk* "T-dark-2")
 (setq *alt-theme-gtk-extra* "/home/zanea/.gtkrc-2.0.mine")
 (setq *alt-theme-frame* "gperfection-hash")
-(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen eog emacs)) ; Class names, downcased to test executable names
+;(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen eog emacs)) ; Class names, downcased to test executable names
+(setq *alt-theme-apps* '(urxvt nitrogen eog)) ; Class names, downcased to test executable names
 
 (setq *workspace-count* 4) ; Amount of unnamed workspaces to create
 
@@ -43,7 +44,9 @@
       `((,(_ "_Windows") . window-menu)
         (,(_ "_Customize") . custom-menu)
         ()
+        (,(_ "_Edit Config") (emacs-edit "~/.sawfish/rc"))
         (,(_ "_Restart Sawfish") restart)
+        () ; So I don't accidently hit quit
         (,(_ "_Quit") quit)))
 
 
@@ -87,7 +90,7 @@
  "Super-e"             '(jump-or-exec-or-last "Emacs" "emacs -Q --load /home/zanea/.emacs_new")
  "Super-p"             '(jump-or-exec-or-last "Buddy List" "pidgin")
 
- "XF86HomePage"        '(system "nautilus &")
+ "XF86HomePage"        '(system "dbus-launch nautilus &")
  "XF86Calculator"      '(system "urxvt &")
 
  "M-Ret"               '(system (concat (prompt #:title "Run:") " &"))
@@ -107,6 +110,9 @@
 
  "Super-Button4-Click" 'next-workspace
  "Super-Button5-Click" 'previous-workspace
+
+ "C-Left"              'previous-workspace
+ "C-Right"             'next-workspace
  )
 
 ; Root window bindings
@@ -326,7 +332,8 @@
 
   (bind-keys global-keymap "Super-`" '(org-sawfish-start-clock (input-focus)))
 
-  (setq root-menu (append `((,(_ "_Org-Mode") . ((,(_ "_Clock in to Tag") (org-sawfish-clock-prompt))))
+  (setq root-menu (append `((,(_ "_Org-Mode") . ((,(_ "_Open Day Agenda") (emacs '(org-agenda-goto-today)))
+                                                 (,(_ "_Clock in to Tag") (org-sawfish-clock-prompt))))
                             ())
                           root-menu)))
 
@@ -398,9 +405,10 @@
    "Super-M-Ret" '(music (prompt-for-file "Music/File:" #:start "/media/media/"))
    )
 
-  (setq root-menu (append `((,(_ "_Music") . ((,(_ "Play _Artist") (prompt-for-song))
+  (setq root-menu (append `((,(_ "_Music") . ((,(_ "Play _Artist") (prompt-for-music))
                                               (,(_ "Play _Song") (prompt-for-song))
-                                              (,(_ "Play _File") (music (prompt-for-file "Music/File:" #:start "/media/media/")))))
+                                              (,(_ "Play _File") (music (prompt-for-file "Music/File:" #:start "/media/media/")))
+                                              (,(_ "_Edit Playlist") (system (format nil "%s/Documents/bin/editplaylist.sh &" (user-home-directory))))))
                             ())
                           root-menu)))
 
