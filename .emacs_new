@@ -138,6 +138,7 @@
 
 (defun update-org ()
   "Update org-mode related stuff, appointments, modeline etc"
+  (set-face-attribute 'org-table nil :inherit 'fixed-pitch) ; HACK
   (setq urgent-org-mode-line
         (let ((heading (mapconcat 'identity
                                   (org-map-entries
@@ -207,6 +208,12 @@ plus add font-size: 8pt"
     (while (re-search-forward "<pre>" nil t)
       (replace-match pre-tag nil nil))
     (goto-char (point-min))))
+
+(defun list-files (path)
+  (let ((files (directory-files path t)))
+    (mapconcat #'identity
+     (last files (- (length files) 2)) ; Remove . and ..
+     "\n")))
 
 ;; Load some libraries
 
