@@ -20,13 +20,11 @@
 
 (setq *music-player* 'musicd) ; musicd, mpd or xmms2
 
-(setq *alt-theme-gtk* "T-dark-2")
+(setq *alt-theme-gtk* "Valium-Hash")
 (setq *alt-theme-gtk-extra* "/home/zanea/.gtkrc-2.0.mine")
 (setq *alt-theme-frame* "gperfection-hash")
 ;(setq *alt-theme-apps* '(urxvt Pidgin nautilus nitrogen eog emacs)) ; Class names, downcased to test executable names
 (setq *alt-theme-apps* '(urxvt nitrogen eog)) ; Class names, downcased to test executable names
-
-(setq *workspace-count* 4) ; Amount of unnamed workspaces to create
 
 (setq help-display-info-function emacs-call-info)
 
@@ -88,9 +86,11 @@
 
  "Super-w"             '(jump-or-exec-or-last "Vimperator" "firefox")
  "Super-e"             '(jump-or-exec-or-last "Emacs" "emacs -Q --load /home/zanea/.emacs_new")
+ ;"Super-e"             '(system "emacs -Q --load /home/zanea/.emacs_new &")
  "Super-p"             '(jump-or-exec-or-last "Buddy List" "pidgin")
 
- "XF86HomePage"        '(system "dbus-launch nautilus &")
+ ;"XF86HomePage"        '(system "dbus-launch nautilus &")
+ "XF86HomePage"        '(system "nautilus &")
  "XF86Calculator"      '(system "urxvt &")
 
  "M-Ret"               '(system (concat (prompt #:title "Run:") " &"))
@@ -204,10 +204,7 @@
 ;; Numbered Workspaces
 (define (update-workspaces #!optional workspaces)
   "Create Workspaces (including org-mode tags)"
-  (setq workspace-names '())
-  (do ((i 1 (1+ i)))
-      ((< *workspace-count* i) i)
-    (append! workspace-names (list (number->string i))))
+  (setq workspace-names '(main))
   (append! workspace-names (or workspaces
                                (emacs
                                 '(mapcar (lambda (tag)
@@ -222,13 +219,13 @@
   "Switches workspace by name"
   (call-command 'activate-workspace (1+ (find-in-list name workspace-names))))
 
-; Workspace switching binds
+; Viewport switching binds
 (do ((i 1 (1+ i)))
-    ((< (length workspace-names) i) i)
+    ((< 9 i) i)
   (bind-keys
    global-keymap
    (concat "Super-" (number->string i))
-   `(activate-workspace ,i)))
+   `(activate-viewport ,i 1)))
 
 (define (get-window-memory-usage w)
   "Get Memory Usage for a Window using _NET_WM_PID"
