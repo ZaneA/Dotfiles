@@ -6,8 +6,9 @@ Xft.antialias: 1
 Xft.dpi: 96
 Xft.rgba: none
 
-! Xcursor.theme: G5-Mouse
-Xcursor.theme: a0x_cur1_light
+Xcursor.theme: G5-Mouse
+#Xcursor.theme: a0x_cur1_light
+#Xcursor.theme: ComixCursors-Black-Small
 Xcursor.size: 12
 
 URxvt*boldFont: xft:profont-8:style=Bold
@@ -24,6 +25,7 @@ URxvt*scrollBar: false
 URxvt*skipScroll: true
 URxvt*cutchars: "()*,<>[]{}|'
 URxvt*urgentOnBell: true
+! URxvt*saveLines: 24000
 
 URDesktop*transparent: true
 URDesktop*inheritPixmap: true
