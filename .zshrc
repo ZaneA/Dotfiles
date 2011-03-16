@@ -6,6 +6,7 @@
 HISTFILE=~/.history
 HISTSIZE=1000
 SAVEHIST=1000
+eval `dircolors -b`
 
 setopt append_history inc_append_history extended_history hist_find_no_dups hist_ignore_all_dups
 setopt hist_reduce_blanks hist_ignore_space hist_no_store hist_save_no_dups
@@ -42,6 +43,21 @@ setopt appendhistory autocd notify hist_ignore_all_dups nohup automenu alwayslas
 autoload -U compinit
 compinit
 
+# allow approximate
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:approximate:*' max-errors 1 numeric
+
+# tab completion for PID :D
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+
+zstyle ':completion:*:kill:*:processes' command "ps x"
+
+# cd not select parent dir
+zstyle ':completion:*:cd:*' ignore-parents parent pwd
+
+
 # Set up PATH
 export PATH=~/bin/:~/Documents/bin/:/var/lib/gems/1.8/bin/:$PATH
 
@@ -49,7 +65,8 @@ export BROWSER=firefox
 export EDITOR=ec
 
 # Handy aliases
-alias ls='ls --color=auto -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
+alias ls='ls --color -FCvXh --group-directories-first' l='ls' sl='ls' ll='ls -l' la='ls -a' lla='ll -a'
+alias less='less -r'
 alias mkdir='mkdir -p'
 
 alias ec='emacsclient -nc'
@@ -68,8 +85,21 @@ source ~/Documents/dotfiles/live-command-coloring.sh
 export GTK_MODULES=rgba
 #export DE=gnome
 
+typeset -g -A key
+bindkey '^?' backward-delete-char
+bindkey '^[[1~' beginning-of-line
+bindkey '^[[5~' up-line-or-history
+bindkey '^[[3~' delete-char
+bindkey '^[[4~' end-of-line
+bindkey '^[[6~' down-line-or-history
+bindkey '^[[A' up-line-or-search
+bindkey '^[[D' backward-char
+bindkey '^[[B' down-line-or-search
+bindkey '^[[C' forward-char 
 bindkey "^[[7~" beginning-of-line
 bindkey "^[[8~" end-of-line
+# completion in the middle of a line
+bindkey '^i' expand-or-complete-prefix
 
 set -5
 stty stop ''
