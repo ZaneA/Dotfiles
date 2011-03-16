@@ -3,11 +3,18 @@
 ;;
 
 (add-to-list 'load-path "~/.emacs.d")
+(add-to-list 'load-path "~/.emacs.d/org-7.4/lisp")
+(require 'org-install)
 
 (tool-bar-mode -1)
 (scroll-bar-mode 1)
 
 ;(load-file "~/.emacs_colortheme")
+
+;(require 'color-theme)
+;(color-theme-initialize)
+;(color-theme-gtk-ide)
+;(color-theme-ld-dark)
 
 ;; Misc settings
 
@@ -119,6 +126,8 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
+(global-set-key (kbd "C-c a") 'org-agenda)
+
 (setq mode-line-in-non-selected-windows nil)
 
 ; Org-mode settings
@@ -127,9 +136,26 @@
       org-confirm-elisp-link-function nil
       org-return-follows-link t
       org-startup-folded 'showall
-      org-hide-leading-stars 'hidestars
+      ;org-hide-leading-stars 'hidestars
       org-log-into-drawer t
+      org-confirm-babel-evaluate nil
       )
+
+(setq org-todo-keyword-faces
+      '(
+        ("TODO" . (:foreground "#ff8888" :weight bold))
+        ("URGENT" . (:foreground "#ff2222" :weight bold :underline t))
+        ("LATER" . (:foreground "#88aaff" :weight bold))
+        ("DONE" . (:foreground "#66ee88" :weight bold))
+        ))
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((scheme . t)
+   (sh . t)
+   (emacs-lisp . t)))
+
+(setq org-babel-scheme-cmd "csi -quiet -:c")
 
 (appt-activate 1) ; Enable appointment notification
 
@@ -344,6 +370,17 @@ plus add font-size: 8pt"
 (add-to-list 'compilation-finish-functions 'compilation-troll)
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
+;(require 'php-doc nil t)
+;(setq php-doc-directory "~/Documents/php-chunked-xhtml/")
+;(add-hook 'php-mode-hook
+;          (lambda ()
+;            (local-set-key "\t" 'php-doc-complete-function)
+;            (local-set-key (kbd "\C-c h") 'php-doc)
+;            (set (make-local-variable 'eldoc-documentation-function)
+;                 'php-doc-eldoc-function)
+;            (eldoc-mode 1)))
+
 
 ;(load (expand-file-name "~/quicklisp/slime-helper.el"))
 ;(setq inferior-lisp-program "sbcl --noinform --no-linedit")
