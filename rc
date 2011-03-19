@@ -200,6 +200,13 @@
       (setq i (1+ i)))
     i))
 
+; Tile windows 50/50 Windows 7 style
+; TODO Set these as "maximized" so unmaximizing returns them to their original size
+(define (tile-windows #!optional (a (nth 0 (window-order))) (b (nth 1 (window-order))))
+  (let ((w (/ (car (screen-dimensions)) 2))
+        (h (cdr (screen-dimensions))))
+    (move-resize-window-to a 0 0 w h)
+    (move-resize-window-to b w 0 w h)))
 
 ;; Numbered Workspaces
 (define (update-workspaces #!optional workspaces)
