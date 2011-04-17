@@ -31,8 +31,9 @@
 
 ;;; Window Matchers
 
-(add-window-matcher 'WM_CLASS "MPlayer" '(depth . 2) '(sticky . t))
-(add-window-matcher 'WM_CLASS "Pidgin" '(depth . 0) '(sticky . t))
+(add-window-matcher 'WM_CLASS "MPlayer" '(depth . 2) '(sticky . t) '(sticky-viewport . t))
+(add-window-matcher 'WM_CLASS "Pidgin" '(depth . 0) '(sticky . t) '(sticky-viewport . t))
+(add-window-matcher 'WM_CLASS "xchat" '(depth . 0) '(sticky . t) '(sticky-viewport . t))
 (add-window-matcher 'WM_CLASS "Navigator" '(keymap-trans . (("M-w" "C-F4"))))
 
 
@@ -92,12 +93,16 @@
  ;"XF86HomePage"        '(system "dbus-launch nautilus &")
  "XF86HomePage"        '(system "nautilus &")
  "XF86Calculator"      '(system "urxvt &")
+ "Super-XF86Calculator"      '(system "urxvt -e rlwrap csi &")
+ "M-XF86Calculator"      '(system "urxvt -e sawfish-client &")
 
  "M-Ret"               '(system (concat (prompt #:title "Run:") " &"))
  "M-`"                 '(call-command (prompt-for-command "Sawfish Command:"))
 
  "M-u"                 'undo
  "M--"                 'undo
+
+ "Super--"                 '(tile-windows)
 
  "M-n"                 '(system "firefox &")
  "M-m"                 '(emacs-run "(make-frame)")
