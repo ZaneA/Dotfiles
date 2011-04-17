@@ -1,11 +1,12 @@
 #!/usr/bin/csi -s
 
-;;; Zanes wmii config, in chicken scheme
-;;; Modified from the wmii egg example
+;;; Zanes wmii config, in Chicken Scheme
+;;; Modified from the wmii egg example (I guess that goes without saying)
+;;;
+;;; TODO
+;;; Stabilize it a bit. It's not bad but occasionally I get exceptions in places
 
-(require-library wmiirc srfi-18 posix regex regex-literals srfi-13)
-(import scheme chicken (prefix wmiirc wmii:) srfi-18 posix regex regex-literals srfi-13)
-
+(use (prefix wmiirc wmii:) srfi-18 posix regex regex-literals srfi-13 numspell)
 
 (wmii:connect)
 
@@ -20,9 +21,19 @@
     (left  . "h")
     (right . "l")))
 
-(define wmii-normcolors  '(#xf6f3e8 #x242424 #x303030))
-(define wmii-focuscolors '(#x000000 #xcae682 #x303030))
-(define wmii-font "-*-terminus-*-*-*-*-*-*-*-*-*-*-*-*")
+;(define wmii-normcolors  '(#xf6f3e8 #x242424 #x303030)) ; lime
+;(define wmii-focuscolors '(#x000000 #xcae682 #x303030)) ; lime
+
+;(define wmii-normcolors  '(#xf3bbc3 #x242424 #x303030)) ; red
+;(define wmii-focuscolors '(#xf3bbc3 #xc24c5b #x303030)) ; red
+
+(define wmii-normcolors  '(#xccd9c8 #x242424 #x303030)) ; dA green
+(define wmii-focuscolors '(#xccd9c8 #x40534a #x303030)) ; dA green
+
+;(define wmii-font "xft:Terminus-7")
+;(define wmii-font "xft:Helvetica Neue-8:style=Medium")
+(define wmii-font "xft:Geneva-8")
+;
 (define wmii-colmode "default")
 (define wmii-barposition "on bottom")
 (define wmii-floatborder "3")
@@ -30,51 +41,21 @@
 
 (define wmii-evalcolors '(#xaa8888 #x242424 #x242424))
 
-(define fork-run #f) ; Forward decl
-(define shell #f) ; Forward decl
+;;; Tools
 
-(define status-bars
-  `((b-dropbox (conc "Dropbox: " (string-join (shell "dropbox status")))
-               (fork-run (conc wmii-term " -cd ~/Dropbox"))
-               (#xcc8888 #x242424 #x242424))
-    (a-music (string-join (shell "nyxmms2 status -f '${artist} - ${title}'"))
-             (fork-run "abraca") ; Eval'd on click
-             (#x88cc88 #x242424 #x242424))
-    (c-loadavg (string-join (shell "awk '{print $1\" \"$2\" \"$3}' /proc/loadavg"))
-               (fork-run (conc wmii-term " -e htop"))
-               (#x8888cc #x242424 #x242424))
-    (d-date (string-join (shell "date '+%A %e %B %l.%M%P'"))
-            #f
-            (#xcccc88 #x242424 #x242424))))
+; small functions to help read files
+(define file/read-lines (cut with-input-from-file <> read-lines))
+(define (file/read-line file) (car (file/read-lines file)))
 
-
-;;; Rule config
-
-(wmii:colrules-set!
- `(("gimp"   . (17 83 41))
-   (".*"     . (62 38))))
-
-(wmii:tagrules-set!
- `(("Quod Libet|Abraca"  . "1+Music")
-   ("MPlayer|VLC|Totem"  . ("1+Video" "~"))
-   ("Emacs"              . "1+Emacs")
-   ("Firefox|Vimperator" . "1+Web")
-   ("urxvt"              . "1+Term")
-   ("gimp"               . "Graphics")
-   (".*"                 . "sel")
-   (".*"                 . "1")))
-
-(wmii:global-settings-set!
- `((font        . ,wmii-font)
-   (focuscolors . ,wmii-focuscolors)
-   (normcolors  . ,wmii-normcolors)
-   (grabmod     . ,modkey)
-   (colmode     . ,wmii-colmode)
-   (bar         . ,wmii-barposition)
-   (border      . ,wmii-floatborder)))
-
-
-;;; Function definitions
+; I use this to format my Mail status
+(define (number->english* number str)
+  (string-titlecase
+    (cond ((zero? number)
+           (format "no ~as" str))
+          ((eq? 1 number)
+           (format "~a ~a" (number->english number) str))
+          (else
+            (format "~a ~as" (number->english number) str)))))
 
 ; Start a process in the background
 (define (fork-run . args)
@@ -90,21 +71,57 @@
     ((nth i list)
      (list-ref list i))))
 
-; Run macro using above shell function
-(define-syntax run
-  (syntax-rules (as on)
-    [(run command as username on machine)
-     (let ([matches (string-match #/(.*?):(.+)/ machine)])
-       (if (list? matches)
-           (shell (format "ssh -C -p ~a ~a@~a ~a"
-                           (nth 2 matches) ; Port
-                           username
-                           (nth 1 matches) ;Machine
-                           command))))]
-    [(run command on machine)
-     (run command as (getenv "USERNAME") on machine)]
-    [(run command)
-     (shell command)]))
+
+(define *status-bar-interval* 2)
+
+(define status-bars
+  `((a-email (string-append
+               "Mail: "
+               (number->english*
+                 (string->number (string-join (shell "claws-mail --status | awk '{print $2}'")))
+                 "message"))
+             #f
+             (#xffffff #x242424 #x242424))
+    (b-conky (car (shell "conky -c ~/.wmii/conky"))
+             #f
+             (#xcc8888 #x242424 #x242424))
+    (c-music (file/read-line "~/.musicd/current")
+             (fork-run "nautilus")
+             (#xccd9c8 #x40534a #x303030))
+    (d-loadavg (car (shell "awk '{print $1\" \"$2\" \"$3}' /proc/loadavg"))
+               (fork-run (conc wmii-term " -e htop"))
+               (#x8888cc #x242424 #x242424))
+    (e-date (time->string (seconds->local-time) "%A %e %B %l.%M%P")
+            #f
+            (#xcccc88 #x242424 #x242424))))
+
+
+;;; Rule config
+
+(wmii:colrules-set!
+ `(("gimp"   . (17 83 41))
+   (".*"     . (38 62))))
+
+(wmii:tagrules-set!
+ `(("Quod Libet|Abraca"  . "1+Music")
+   ("MPlayer|VLC|Totem"  . ("1+Video" "~"))
+   ("Emacs"              . "1+Emacs")
+   ("Firefox|Vimperator" . "1+Web")
+   ("urxvt"              . "1+Term")
+   ("gimp"               . "Graphics")
+   (".*"                 . "sel")))
+
+(wmii:global-settings-set!
+ `((font        . ,wmii-font)
+   (focuscolors . ,wmii-focuscolors)
+   (normcolors  . ,wmii-normcolors)
+   (grabmod     . ,modkey)
+   (colmode     . ,wmii-colmode)
+   (bar         . ,wmii-barposition)
+   (border      . ,wmii-floatborder)))
+
+
+;;; Function definitions
 
 (define (wimenu options . rest)
   (receive (in out pid)
@@ -128,7 +145,7 @@
                    (lambda (bar)
                      (wmii:write-tab "rbar" (nth 0 bar) (string-trim-both (eval (nth 1 bar))) (nth 3 bar)))
                    (append status-bars `((0 "" #f ,wmii-normcolors))))
-		  (thread-sleep! 1)
+		  (thread-sleep! *status-bar-interval*)
 		  (loop)))))))))
 
 (define (proglist path)
@@ -222,7 +239,7 @@
    ((key ,modkey "Shift" "Return")
     . ,(lambda _
          (and-let* ((input (wimenu `(""))))
-                   (fork-run (conc "x-www-browser 'http://www.yubnub.org/parser/parse?command=" input "'")))))
+                   (fork-run (format "firefox 'http://www.yubnub.org/parser/parse?command=~a'" input)))))
 
    ; Other menus/running stuff
    ((key ,modkey "p")
