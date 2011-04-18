@@ -75,11 +75,15 @@
 (define *status-bar-interval* 2)
 
 (define status-bars
-  `((a-email (string-append
-               "Mail: "
-               (number->english*
-                 (string->number (string-join (shell "claws-mail --status | awk '{print $2}'")))
-                 "message"))
+  `((a-email 
+      (let ((claws-status (nth 1 (string-split (car (shell "claws-mail --status"))))))
+        (string-append
+          "Mail: "
+          (number->english*
+            (if (not (string=? "Claws" claws-status))
+              (string->number claws-status)
+              0)
+            "message")))
              #f
              (#xffffff #x242424 #x242424))
     (b-conky (car (shell "conky -c ~/.wmii/conky"))
