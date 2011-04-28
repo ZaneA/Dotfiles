@@ -2,18 +2,16 @@
 ;; Main Configuration
 ;;
 
-(define modkey "Mod4")
-
-(define wmii-colmode "stack")
-(define wmii-barposition "on bottom")
-(define wmii-floatborder "3")
 (define wmii-term "urxvt")
+(define modkey "Mod4") (add-setting grabmod modkey)
 
-(define directions
-  `((up    . "k")
-    (down  . "j")
-    (left  . "h")
-    (right . "l")))
+(add-setting colmode "stack")
+(add-setting bar "on bottom")
+(add-setting border "3")
+
+(load-theme "live-coding")
+
+(define directions `((up . "k") (down . "j") (left . "h") (right . "l")))
 
 
 ;; Rules

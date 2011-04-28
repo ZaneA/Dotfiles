@@ -11,22 +11,11 @@
 (wmii:connect)
 
 (include "~/.wmii/chicken-wmii/utilities.scm")          ; Misc functions and Utilities
-(include "~/.wmii/chicken-wmii/themes/live-coding.scm") ; Color theme
+(include "~/.wmii/chicken-wmii/theming.scm")            ; Color themes
 (include "~/.wmii/chicken-wmii/config.scm")             ; Main configuration
 (include "~/.wmii/chicken-wmii/statusbar.scm")          ; Fancy Status Bar
 (include "~/.wmii/chicken-wmii/program-list.scm")       ; Program launcher
 (include "~/.wmii/chicken-wmii/tag-handling.scm")       ; Tag Handling
-
-
-;; Set in config.scm (Main configuration)
-(wmii:global-settings-set!
- `((font        . ,wmii-font)
-   (focuscolors . ,wmii-focuscolors)
-   (normcolors  . ,wmii-normcolors)
-   (grabmod     . ,modkey)
-   (colmode     . ,wmii-colmode)
-   (bar         . ,wmii-barposition)
-   (border      . ,wmii-floatborder)))
 
 
 ;;; Event handling

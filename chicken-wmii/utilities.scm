@@ -12,6 +12,11 @@
     [(_ keys body ...)
      (wmii:event-handlers-set! (alist-update! `(key ,modkey ,@keys) (lambda _ body ...) (wmii:event-handlers)))]))
 
+(define-syntax add-setting
+  (syntax-rules ()
+    [(_ setting value)
+     (wmii:global-settings-set! (alist-update! 'setting value (wmii:global-settings)))]))
+
 (define file/read-lines (cut with-input-from-file <> read-lines))
 (define (file/read-line file) (car (file/read-lines file)))
 
