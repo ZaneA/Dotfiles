@@ -4,7 +4,6 @@
 
 (add-to-list 'load-path "~/.emacs.d")
 (add-to-list 'load-path "~/.emacs.d/org-7.4/lisp")
-(require 'org-install)
 
 (tool-bar-mode -1)
 (scroll-bar-mode 1)
@@ -13,6 +12,7 @@
 
 ;(require 'color-theme)
 ;(color-theme-initialize)
+;(color-theme-hober)
 ;(color-theme-gtk-ide)
 ;(color-theme-ld-dark)
 
@@ -24,7 +24,7 @@
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
-(setq urgent-org-mode-line "N/A")
+(setq urgent-org-mode-line "")
 (setq frame-title-format '((buffer-name "%f" ("%b")) " | " mode-name " | Emacs" urgent-org-mode-line))
 (setq-default cursor-in-non-selected-windows nil)
 (setq x-stretch-cursor t)
@@ -45,7 +45,7 @@
 
 (setq read-file-name-completion-ignore-case t)
 
-(desktop-save-mode t) ; Save buffers to desktop file
+;(desktop-save-mode t) ; Save buffers to desktop file
 (setq display-time-string-forms
       '((concat " " 12-hours ":" minutes " ")))
 (display-time-mode t) ; Show time in modeline
@@ -66,24 +66,6 @@
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "M-\\") 'align-regexp)
 (global-set-key (kbd "M-/") 'hippie-expand)
-
-;; Google!
-
-(defun google (query)
-  (interactive "sGoogle: ")
-  (browse-url (concat "http://google.com/search?q=" query)))
-
-(defun google-im-feeling-lucky (query)
-  (interactive "sI'm feeling lucky: ")
-  (browse-url (concat "http://google.com/search?btnI&q=" query)))
-
-(defun google-word-at-point ()
-  (interactive)
-  (google-im-feeling-lucky (current-word)))
-
-(global-set-key (kbd "<f1>") 'google-word-at-point)
-(global-set-key (kbd "<f2>") 'google)
-(global-set-key (kbd "<f3>") 'google-im-feeling-lucky)
 
 (setq compilation-read-command nil)
 (global-set-key (kbd "<f5>") 'smart-compile)
@@ -117,6 +99,11 @@
   (interactive "r")
   (shell-command-on-region b e markdown-command (current-buffer) t))
 
+(defun format-xml (&optional b e)
+  "Run tidy on region and replace"
+  (interactive "r")
+  (shell-command-on-region b e "tidy -xml -quiet -indent" (current-buffer) t))
+
 ;; ctrl-tab,ctrl-shift-tab to move between buffers
 (defun switch-tab-or-window-forward ()
   (interactive)
@@ -126,84 +113,101 @@
   (interactive)
   (other-buffer -1))
 
+(defun toggle-fullscreen (&optional f)
+  (interactive)
+  (let ((current-value (frame-parameter nil 'fullscreen)))
+    (set-frame-parameter nil 'fullscreen
+                         (if (equal 'fullboth current-value)
+                             (if (boundp 'old-fullscreen) old-fullscreen nil)
+                           (progn (setq old-fullscreen current-value)
+                                  'fullboth)))))
+
+(global-set-key [f11] 'toggle-fullscreen)
+
 (global-set-key (kbd "<C-tab>") 'switch-tab-or-window-forward)
-(add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "<C-tab>") 'switch-tab-or-window-forward)))
 (global-set-key (kbd "<C-S-iso-lefttab>") 'switch-tab-or-window-backward)
 (global-set-key (kbd "<C-S-tab>") 'switch-tab-or-window-backward)
 
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
-(global-set-key (kbd "C-c a") 'org-agenda)
-
 (setq mode-line-in-non-selected-windows nil)
 
-; Org-mode settings
-(setq org-agenda-files '("~/todo.org")
-      org-confirm-shell-link-function nil
-      org-confirm-elisp-link-function nil
-      org-return-follows-link t
-      org-startup-folded 'showall
-      ;org-hide-leading-stars 'hidestars
-      org-log-into-drawer t
-      org-confirm-babel-evaluate nil
-      )
+(eval-after-load "org-mode"
+  '(progn
+     (global-set-key (kbd "C-c a") 'org-agenda)
+     (global-set-key (kbd "C-c c") 'org-capture)
 
-(setq org-todo-keyword-faces
-      '(
-        ("TODO" . (:foreground "#ff8888" :weight bold))
-        ("URGENT" . (:foreground "#ff2222" :weight bold :underline t))
-        ("LATER" . (:foreground "#88aaff" :weight bold))
-        ("DONE" . (:foreground "#66ee88" :weight bold))
-        ))
+     (add-hook 'org-mode-hook
+               (lambda ()
+                 (define-key org-mode-map (kbd "<C-tab>") 'switch-tab-or-window-forward)))
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((scheme . t)
-   (sh . t)
-   (emacs-lisp . t)))
+     (setq org-agenda-files '("~/org/todo.org" "~/org/day.org")
+           org-confirm-shell-link-function nil
+           org-confirm-elisp-link-function nil
+           org-return-follows-link t
+           org-startup-folded 'showall
+           org-log-into-drawer t
+           org-confirm-babel-evaluate nil)
 
-(setq org-babel-scheme-cmd "csi -quiet -:c")
+     (setq org-todo-keyword-faces
+           '(
+             ("TODO" . (:foreground "#eebb22" :weight bold))
+             ("URGENT" . (:foreground "#ff2222" :weight bold :underline t))
+             ("BLOCKED" . (:foreground "#ff8888" :weight bold :slant italic))
+             ("LATER" . (:foreground "#88aaff" :weight bold))
+             ("DONE" . (:foreground "#66ee88" :weight bold))
+             ))
 
-(appt-activate 1) ; Enable appointment notification
+     (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((scheme . t)
+        (sh . t)
+        (emacs-lisp . t)))
 
-(defun clean-org-heading (heading)
-  (replace-regexp-in-string "\\[\\[.*\\]\\[\\\(.*\\\)\\]\\]" "\\1" heading))
+     (setq org-babel-scheme-cmd "csi -quiet -:c")
 
-(defun update-org ()
-  "Update org-mode related stuff, appointments, modeline etc"
-  (set-face-attribute 'org-table nil :inherit 'fixed-pitch) ; HACK
-  (setq urgent-org-mode-line
-        (let ((heading (mapconcat 'identity
-                                  (org-map-entries
-                                   (lambda ()
-                                     (clean-org-heading (nth 4 (org-heading-components))))
-                                   "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", ")))
-          (if (not (string= "" heading))
-              (concat " | Urgent Tasks: " heading)
-            "")))
-  (setq appt-time-msg-list nil)
-  (org-agenda-to-appt)
-  nil)
+     (appt-activate 1) ; Enable appointment notification
 
-(run-at-time nil 300 'update-org)
+     (defun clean-org-heading (heading)
+       (replace-regexp-in-string "\\[\\[.*\\]\\[\\\(.*\\\)\\]\\]" "\\1" heading))
 
-(defmacro sawfish (form)
-  `(saw-client-eval (format "%S" ,form)))
+     (defun update-org ()
+       "Update org-mode related stuff, appointments, modeline etc"
+       (set-face-attribute 'org-table nil :inherit 'fixed-pitch) ; HACK
+       (setq urgent-org-mode-line
+             (let ((heading (mapconcat 'identity
+                                       (org-map-entries
+                                        (lambda ()
+                                          (clean-org-heading (nth 4 (org-heading-components))))
+                                        "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", ")))
+               (if (not (string= "" heading))
+                   (concat " | Urgent Tasks: " heading)
+                 "")))
+       (setq appt-time-msg-list nil)
+       (org-agenda-to-appt)
+       nil)
 
-(defun my-goto-workspace (name)
-  (sawfish `(goto-workspace ,name)))
+     (run-at-time nil 300 'update-org)))
 
-(defun new-clocked-task (description tag)
-  "Create a new clocked task"
-  (interactive "sDescription: \nsTag: ")
-  (insert (format "** TODO [[elisp:%S][%s]] :%s:"
-                  `(progn
-                     (org-clock-in)
-                     (my-goto-workspace ,tag)) description tag))
-  (sawfish `(update-workspaces ',(mapcar (lambda (tag)
-                                          (substring-no-properties (car tag)))
-                                        (org-global-tags-completion-table)))))
+(eval-after-load "sawfish"
+  '(progn
+     (defmacro sawfish (form)
+       `(saw-client-eval (format "%S" ,form)))
+
+     (defun my-goto-workspace (name)
+       (sawfish `(goto-workspace ,name)))
+
+     (defun new-clocked-task (description tag)
+       "Create a new clocked task"
+       (interactive "sDescription: \nsTag: ")
+       (insert (format "** TODO [[elisp:%S][%s]] :%s:"
+                       `(progn
+                          (org-clock-in)
+                          (my-goto-workspace ,tag)) description tag))
+       (sawfish `(update-workspaces ',(mapcar (lambda (tag)
+                                                (substring-no-properties (car tag)))
+                                              (org-global-tags-completion-table)))))))
 
 ;(org-add-link-type "wm" 'saw-client-eval)
 
@@ -251,29 +255,44 @@ plus add font-size: 8pt"
 
 ;; Load some libraries
 
-; nXhtml
-(load "nxhtml/autostart")
-(setq mumamo-chunk-coloring 'submode-colored)
-(setq mumamo-background-colors nil)
-(setq nxhtml-skip-welcome t)
-(setq rng-nxml-auto-validate-flag nil)
-
-(if (eq system-type 'windows-nt)
-    (setq todochiku-command ""))
-
 ; Uniquify
-(setq 
- uniquify-buffer-name-style 'reverse
- uniquify-separator ":")
+(eval-after-load "uniquify"
+  '(setq 
+    uniquify-buffer-name-style 'reverse
+    uniquify-separator ":"))
 
-(setq scss-sass-command "sass")
+(eval-after-load "scss-mode"
+  '(setq scss-sass-command "sass"))
 
 ; And some other modes
-(dolist (lib '(vimpulse rainbow-mode lambda-mode lorem-ipsum midnight pastebin xmlgen chicken-scheme-extras scheme-complete
-               smart-compile uniquify scss-mode sawfish saw-client kpm-list markdown-mode rainbow-delimiters))
+(dolist (lib '(vimpulse rainbow-mode lambda-mode lorem-ipsum midnight pastebin xmlgen chicken-scheme-extras scheme-complete eval-sexp-fu
+               smart-compile uniquify kpm-list rainbow-delimiters smooth-scrolling))
   (require lib))
 
-(midnight-delay-set 'midnight-delay "1:00am")
+(autoload 'org-mode "org-install" "Org Mode" t)
+(autoload 'scss-mode "scss-mode" "SCSS Mode" t)
+(autoload 'markdown-mode "markdown-mode" "Markdown Mode" t)
+(autoload 'nxhtml-mumamo "nxhtml/autostart" "nXhtml Support" t)
+(autoload 'nxhtml-mode "nxhtml/autostart" "nXhtml Support" t)
+
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+(add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.html$" . nxhtml-mumamo))
+(add-to-list 'auto-mode-alist '("\\.php$" . nxhtml-mumamo))
+(add-to-list 'auto-mode-alist '("\\.emacs_new$" . emacs-lisp-mode))
+
+(eval-after-load "midnight"
+  '(midnight-delay-set 'midnight-delay "1:00am"))
+
+(eval-after-load "eval-sexp-fu"
+  '(setq eval-sexp-fu-flash-duration 0.5))
+
+(eval-after-load "org-mode"
+  '(progn
+     (require 'org-agenda-sms)
+     (load "~/.org-agenda-sms") ; Passwords
+     (run-at-time "07am" nil 'org-agenda-sms)))
 
 (vimpulse-define-text-object vimpulse-sexp (arg)
   "Select a S-expression."
@@ -283,20 +302,21 @@ plus add font-size: 8pt"
    'backward-sexp
    'forward-sexp))
 
+; I need to remember that I have this here!
 (defun rename-file-and-buffer (new-name)
   "Renames both current buffer and file it's visiting to NEW-NAME."
   (interactive "sNew name: ")
   (let ((name (buffer-name))
- (filename (buffer-file-name)))
+        (filename (buffer-file-name)))
     (if (not filename)
- (message "Buffer '%s' is not visiting a file!" name)
+        (message "Buffer '%s' is not visiting a file!" name)
       (if (get-buffer new-name)
-   (message "A buffer named '%s' already exists!" new-name)
- (progn
-   (rename-file name new-name 1)
-   (rename-buffer new-name)
-   (set-visited-file-name new-name)
-   (set-buffer-modified-p nil))))))
+          (message "A buffer named '%s' already exists!" new-name)
+        (progn
+          (rename-file name new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil))))))
 
 (defun my-after-change-major-mode-hook ()
   "Apply my minor modes and custom font locks"
@@ -308,6 +328,8 @@ plus add font-size: 8pt"
 
 (defun my-emacs-lisp-mode-hook ()
   "Apply my Emacs Lisp Mode stuff"
+  (variable-pitch-mode 1)
+  (rainbow-delimiters-mode 1)
   (eldoc-mode 1))
 
 (add-hook 'emacs-lisp-mode-hook 'my-emacs-lisp-mode-hook)
@@ -324,51 +346,90 @@ plus add font-size: 8pt"
 (add-hook 'text-mode-hook 'my-variable-pitch-mode)
 (add-hook 'Info-mode-hook 'my-variable-pitch-mode)
 
-(defun my-php-mode-hook ()
-  (c-set-offset 'case-label '+)
-  (c-set-offset 'arglist-intro '+) ; for FAPI arrays and DBTNG
-  (c-set-offset 'arglist-cont-nonempty 'c-lineup-math) ; for DBTNG fields and values
-  (c-set-offset 'arglist-close 'c-lineup-close-paren)
-)
+(eval-after-load "php-mode"
+  '(progn
+     (defun my-php-mode-hook ()
+       (c-set-offset 'case-label '+)
+       (c-set-offset 'arglist-intro '+) ; for FAPI arrays and DBTNG
+       (c-set-offset 'arglist-cont-nonempty 'c-lineup-math) ; for DBTNG fields and values
+       (c-set-offset 'arglist-close 'c-lineup-close-paren))
 
-(add-hook 'php-mode-hook 'my-php-mode-hook)
+     (add-hook 'php-mode-hook 'my-php-mode-hook)))
 
+(defun chicken-doc (&optional obtain-function)
+  (interactive)
+  (let ((func (funcall (or obtain-function 'current-word))))
+    (when func
+      (process-send-string (scheme-proc)
+                           (format "(use chicken-doc) ,doc %S\n" func))
+      (save-selected-window
+        (select-window (display-buffer (get-buffer scheme-buffer) t))
+        (goto-char (point-max))))))
 
 (defun my-scheme-mode-hook ()
   "Apply scheme mode stuff"
+  (variable-pitch-mode 1)
   (rainbow-delimiters-mode 1)
   (make-local-variable 'eldoc-documentation-function)
   (setq eldoc-documentation-function 'scheme-get-current-symbol-info)
   (eldoc-mode)
   (setq lisp-indent-function 'scheme-smart-indent-function)
   (define-key scheme-mode-map (kbd "M-/") 'scheme-smart-complete)
-  (define-key scheme-mode-map [f1]
-    '(lambda ()
-       (interactive)
-       (ignore-errors
-         (let ((symbol (thing-at-point 'symbol)))
-           (info "(r5rs)")
-           (Info-index symbol))))))
+  (define-key scheme-mode-map [f1] 'chicken-doc))
+;    '(lambda ()
+;       (interactive)
+;       (ignore-errors
+;         (let ((symbol (thing-at-point 'symbol)))
+;           (info "(r5rs)")
+;           (Info-index symbol))))))
+
+;; https://gist.github.com/898948
+(let ((depth 0))
+  (dolist (color
+           ;; These are nicked from VIMClojure:
+           ;; vimclojure/vim/syntax/clojure.vim
+           '("#ffaa55"
+             "#eedd44"
+             "#66cc44"
+             "green2"
+             "#44aa99"
+             "#0088cc"
+             "slate blue"
+             "magenta3"
+             "purple3"))
+    (set-face-foreground (intern (format "rainbow-delimiters-all-delimiters-depth-%d-face"
+                                         (incf depth)))
+                         color)))
 
 (add-hook 'scheme-mode-hook 'my-scheme-mode-hook)
 
-(defun my-nxhtml-mode-hook ()
-  "Apply nxhtml mode stuff"
-  (local-set-key (kbd "C-c C-c") 'insert-xml)
-  (local-set-key (kbd "C-c r") 'surround-region))
+(eval-after-load "nxhtml-mode"
+  '(progn
+     (setq mumamo-chunk-coloring 'submode-colored)
+     ;(setq mumamo-background-colors nil)
+     (setq nxhtml-skip-welcome t)
+     (setq rng-nxml-auto-validate-flag nil)
 
-(add-hook 'nxhtml-mode-hook 'my-nxhtml-mode-hook)
+     (defun my-nxhtml-mode-hook ()
+       "Apply nxhtml mode stuff"
+       (local-set-key (kbd "C-c C-c") 'insert-xml)
+       (local-set-key (kbd "C-c r") 'surround-region))
 
-(defun my-sawfish-mode-hook ()
-  "Apply Sawfish mode stuff"
-  (define-key sawfish-mode-map [f1]
-    '(lambda ()
-       (interactive)
-       (browse-url "http://sawmill.sourceforge.net/prog-manual.html")))
-  (define-key sawfish-mode-map (kbd "M-/") 'sawfish-complete-symbol))
+     (add-hook 'nxhtml-mode-hook 'my-nxhtml-mode-hook)))
 
-(add-hook 'sawfish-mode-hook 'my-sawfish-mode-hook)
+(eval-after-load "sawfish"
+  '(progn
+     (defun my-sawfish-mode-hook ()
+       "Apply Sawfish mode stuff"
+       (define-key sawfish-mode-map [f1]
+         '(lambda ()
+            (interactive)
+            (browse-url "http://sawmill.sourceforge.net/prog-manual.html")))
+       (define-key sawfish-mode-map (kbd "M-/") 'sawfish-complete-symbol))
 
+     (add-hook 'sawfish-mode-hook 'my-sawfish-mode-hook)))
+
+; Resize compilation window
 (defun my-compilation-hook (buffer string)
   "Compilation Hook"
   (fit-window-to-buffer (get-buffer-window buffer t)))
@@ -383,20 +444,9 @@ plus add font-size: 8pt"
 
 (add-to-list 'compilation-finish-functions 'compilation-troll)
 
+; Make file executable automatically if #! is found
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-;(require 'php-doc nil t)
-;(setq php-doc-directory "~/Documents/php-chunked-xhtml/")
-;(add-hook 'php-mode-hook
-;          (lambda ()
-;            (local-set-key "\t" 'php-doc-complete-function)
-;            (local-set-key (kbd "\C-c h") 'php-doc)
-;            (set (make-local-variable 'eldoc-documentation-function)
-;                 'php-doc-eldoc-function)
-;            (eldoc-mode 1)))
-
-
-;(load (expand-file-name "~/quicklisp/slime-helper.el"))
 ;(setq inferior-lisp-program "sbcl --noinform --no-linedit")
 ;(require 'slime)
 ;(slime-setup '(slime-fancy))
