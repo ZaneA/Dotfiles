@@ -104,6 +104,19 @@
   (interactive "r")
   (shell-command-on-region b e "tidy -xml -quiet -indent" (current-buffer) t))
 
+(defun xdg-get-template-dir ()
+  "Return the XDG Templates Directory"
+  (substring (shell-command-to-string "xdg-user-dir TEMPLATES") 0 -1))
+
+(defun insert-xdg-template (&optional template)
+  "Prompt for an XDG template to insert at point"
+  (interactive
+   (list (completing-read "XDG Template: "
+                          (directory-files
+                           (xdg-get-template-dir)
+                           nil directory-files-no-dot-files-regexp))))
+  (insert-file (concat (xdg-get-template-dir) "/" template)))
+
 ;; ctrl-tab,ctrl-shift-tab to move between buffers
 (defun switch-tab-or-window-forward ()
   (interactive)
