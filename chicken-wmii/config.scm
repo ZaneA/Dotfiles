@@ -6,10 +6,10 @@
 (define modkey "Mod4") (add-setting grabmod modkey)
 
 (add-setting colmode "stack")
-(add-setting bar "on bottom")
-(add-setting border "3")
+(add-setting bar "on top")
+(add-setting border "2")
 
-(load-theme "live-coding")
+(load-theme "dark")
 
 (define directions `((up . "k") (down . "j") (left . "h") (right . "l")))
 
@@ -17,8 +17,9 @@
 ;; Rules
 
 (wmii:colrules-set!
- `(("gimp"   . (17 83 41))
-   (".*"     . (38 62))))
+ `(("gimp"   . (13 74 13))
+   ("Emacs" . (50 50))
+   (".*"     . (30 58 12))))
 
 (wmii:tagrules-set!
  `(("Quod Libet|Abraca"  . "sel+Music")
@@ -26,9 +27,12 @@
    ("Emacs"              . "sel+Emacs")
    ("Firefox|Vimperator" . "sel+Web")
    ("claws-mail"         . "sel+Web+Mail")
+   ("Pidgin"             . ("sel+Web+IM" "~"))
    ("urxvt"              . "sel+Term")
    ("gimp"               . ("Graphics" "~"))
    ("Photoshop.*"        . ("Graphics" "~"))
    ("fluxus.*"           . "LiveCoding.Visual")
    ("Renoise.*"          . "LiveCoding.Audio")
+   ("Mailnotify"         . ("sel" "~"))
+   ("epdfview"           . ("sel" "~"))
    (".*"                 . "sel")))
