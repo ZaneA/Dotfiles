@@ -333,7 +333,9 @@ plus add font-size: 8pt"
 
 (defun my-after-change-major-mode-hook ()
   "Apply my minor modes and custom font locks"
-  (rainbow-mode 1)
+  ; rainbow-mode messes with the colouring of kpm-list-mode
+  (unless (equal major-mode 'kpm-list-mode)
+    (rainbow-mode 1))
   (lambda-mode 1))
 
 ; Apply my minor modes and custom font locks after a mode change
