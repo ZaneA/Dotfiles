@@ -9,17 +9,16 @@
 (add-to-list 'load-path "~/.emacs.d")
 (add-to-list 'load-path "~/.emacs.d/org-7.4/lisp")
 
-;; Turn off window extras.
-
-(tool-bar-mode -1)
-(scroll-bar-mode 1)
-
 ;; Sometimes I get in the mood to use a colortheme, so often used
 ;; ones are defined here.
 
-;(load-file "~/.emacs_colortheme")
+(load-file "~/.emacs.d/colors/hash.el")
+;(load-file "~/.emacs.d/colors/dmolokai.el")
 
 ;(require 'color-theme)
+;(color-theme-molokai)
+;(color-theme-hash)
+
 ;(color-theme-initialize)
 ;(color-theme-hober)
 ;(color-theme-gtk-ide)
@@ -27,6 +26,12 @@
 
 ;; Misc settings to fix annoyances.
 ;; ---
+
+;; Turn off window extras.
+
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+;(menu-bar-mode -1)
 
 (setq inhibit-startup-screen t)
 (setq mouse-autoselect-window t)
@@ -171,7 +176,7 @@
 
 ;; Evaluate after loading `org-mode`.
 
-(eval-after-load "org-mode"
+(eval-after-load "org-install"
   '(progn
 
      ;; Add common global keybindings for `org-mode`.
@@ -356,7 +361,7 @@ plus add font-size: 8pt"
 ;; checks my agenda for urgent items on a given day, and sends
 ;; them over to my phone if need be via SMS.
 
-(eval-after-load "org-mode"
+(eval-after-load "org-install"
   '(progn
      (require 'org-agenda-sms)
      (load "~/.org-agenda-sms") ; Passwords
@@ -464,7 +469,7 @@ plus add font-size: 8pt"
   (eldoc-mode)
   (setq lisp-indent-function 'scheme-smart-indent-function)
   (define-key scheme-mode-map (kbd "M-/") 'scheme-smart-complete)
-  (define-key scheme-mode-map [f1] 'chicken-doc))
+  (slime-mode t))
 ;    '(lambda ()
 ;       (interactive)
 ;       (ignore-errors
@@ -499,7 +504,7 @@ plus add font-size: 8pt"
 (eval-after-load "nxhtml-mode"
   '(progn
      (setq mumamo-chunk-coloring 'submode-colored)
-     ;(setq mumamo-background-colors nil)
+     (setq mumamo-background-colors nil)
      (setq nxhtml-skip-welcome t)
      (setq rng-nxml-auto-validate-flag nil)
 
@@ -545,6 +550,30 @@ plus add font-size: 8pt"
 ;; Make file executable automatically if #! is found
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
+;; SLIME
+;; ---
+
+;; Chicken Scheme setup
+
+(defun load-chicken-slime ()
+  (interactive)
+
+  (add-to-list 'load-path "/usr/lib/chicken/5") ; Chicken Slime
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/slime")
+
+  (require 'slime)
+  (slime-setup '(slime-autodoc))
+
+  (require 'chicken-slime)
+  ;(chicken-slime)
+
+  (defun my-slime-mode-hook ()
+    (viper-change-state-to-vi))
+
+  (add-hook 'slime-mode-hook 'my-slime-mode-hook))
+
+(load-chicken-slime)
 
 ;(setq inferior-lisp-program "sbcl --noinform --no-linedit")
 ;(require 'slime)
