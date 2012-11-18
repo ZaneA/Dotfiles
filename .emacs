@@ -343,13 +343,21 @@ plus add font-size: 8pt"
 
 (midnight-delay-set 'midnight-delay "1:00am")
 
-(vimpulse-define-text-object vimpulse-sexp (arg)
-  "Select a S-expression."
-  :keys '("ae" "ie")
+(vimpulse-define-text-object vimpulse-a-arg (arg)
+  "Select A argument."
+  :keys "aa"
+  (vimpulse-an-object-range
+   arg
+   (lambda (arg) (dotimes (i arg '()) (re-search-backward "(\\|,")))
+   (lambda (arg) (dotimes (i arg '()) (re-search-forward ")\\|, ") (backward-char)))))
+
+(vimpulse-define-text-object vimpulse-arg (arg)
+  "Select an argument."
+  :keys "ia"
   (vimpulse-inner-object-range
    arg
-   'backward-sexp
-   'forward-sexp))
+   (lambda (arg) (dotimes (i arg '()) (re-search-backward "(\\|,") (forward-char)))
+   (lambda (arg) (dotimes (i arg '()) (re-search-forward ")\\|,") (backward-char)))))
 
 ; (defun my-find-file-hook ()
 ;   (progn
@@ -473,3 +481,4 @@ plus add font-size: 8pt"
 
 ;; Start Emacs Server
 (server-start)
+(setq load-home-init-file t) ; don't load init file from ~/.xemacs/init.el

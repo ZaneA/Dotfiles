@@ -7,12 +7,13 @@
 ;; Add `emacs.d` to the load path as well as a newer `org-mode` version.
 
 (add-to-list 'load-path "~/.emacs.d")
-(add-to-list 'load-path "~/.emacs.d/org-7.4/lisp")
+(add-to-list 'load-path "~/.emacs.d/org-7.6/lisp")
+;(add-to-list 'load-path "~/.emacs.d/evil")
 
 ;; Sometimes I get in the mood to use a colortheme, so often used
 ;; ones are defined here.
 
-(load-file "~/.emacs.d/colors/hash.el")
+;(load-file "~/.emacs.d/colors/hash.el")
 
 ;; Misc settings to fix annoyances.
 ;; ---
@@ -26,12 +27,13 @@
 (setq mouse-autoselect-window t)
 (set-mouse-color "white")
 
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
 (fset 'yes-or-no-p 'y-or-n-p)
 
 ;; Change the frame title and add urgent `org-mode` stuff into it.
 
-(setq urgent-org-mode-line "")
-(setq frame-title-format '((buffer-name "%f" ("%b")) " | " mode-name " | Emacs" urgent-org-mode-line))
+(setq frame-title-format '((buffer-name "%f" ("%b")) " | " mode-name " | Emacs"))
 
 (setq-default cursor-in-non-selected-windows nil)
 (setq x-stretch-cursor t)
@@ -57,6 +59,7 @@
 (display-time-mode t) ; Show time in modeline
 
 (show-paren-mode t) ; Show matching parens
+(setq show-paren-style 'expression)
 
 (setq pop-up-windows nil)
 
@@ -75,8 +78,11 @@
 (global-set-key (kbd "M-/") 'hippie-expand)
 
 (setq compilation-read-command nil)
-(add-to-list 'smart-compile-alist '("\\.cs$" . "gmcs %F"))
-(global-set-key (kbd "<f5>") 'smart-compile)
+
+(eval-after-load "smart-compile"
+  '(progn
+     (add-to-list 'smart-compile-alist '("\\.cs$" . "gmcs %F"))
+     (global-set-key (kbd "<f5>") 'smart-compile)))
 
 ;; Useful function for evaluating some elisp and placing the output
 ;; in place.
@@ -148,13 +154,18 @@
 
 (global-set-key [f11] 'toggle-fullscreen)
 
-;; Increase/descrease text size with a simple `ctrl-+/-`.
+;; TODO HERE
+;; Function to restart emacs with same arguments as used to launch it.
+;; Should save all frame position/sizes + buffers using desktop-mode
+;; and restore after "reboot".
+
+;; Increase/decrease text size with a simple `ctrl-+/-`.
 
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
 (setq mode-line-in-non-selected-windows nil)
-(setq mode-line-format
+(setq-default mode-line-format
       (quote
        (" "
         (:propertize global-mode-string
@@ -174,9 +185,6 @@
         (:propertize mode-line-process
                      face 'mode-line-mode-process-face)
         "\t"
-        (:propertize urgent-org-mode-line
-                     face 'mode-line-tasks-face)
-        "\t"
         "-%-"
         )))
 ;(setq-default header-line-format mode-line-format)
@@ -195,12 +203,17 @@
 
      ;; Setup some useful `org-mode` settings such as `agenda-files`.
 
-     (setq org-agenda-files '("~/org/todo.org" "~/org/day.org")
+     (setq org-agenda-files (directory-files "~/org/" t ".org$")
+           org-deadline-warning-days 10
            org-confirm-shell-link-function nil
            org-confirm-elisp-link-function nil
            org-return-follows-link t
            org-startup-folded 'showall
+           ;org-startup-with-inline-images t
+           ;org-export-html-inline-images t
            org-log-into-drawer t
+           org-agenda-skip-deadline-if-done t
+           org-agenda-skip-scheduled-if-done t
            org-confirm-babel-evaluate nil)
 
      ;; Change the colors of the TODO faces.
@@ -236,32 +249,52 @@
      (defun update-org ()
        "Update org-mode related stuff, appointments, modeline etc"
        (set-face-attribute 'org-table nil :inherit 'fixed-pitch) ; HACK
-       (setq urgent-org-mode-line
-             (let ((heading (mapconcat 'identity
-                                       (org-map-entries
-                                        (lambda ()
-                                          (clean-org-heading (nth 4 (org-heading-components))))
-                                        "PRIORITY={.}|TIMESTAMP<=\"<+1w>\"|DEADLINE<=\"<+1w>\"|SCHEDULED<=\"<+1w>\"" 'agenda) ", ")))
-               (if (not (string= "" heading))
-                   (concat " | Urgent Tasks: " heading)
-                 "")))
        (setq appt-time-msg-list nil)
        (org-agenda-to-appt)
        nil)
 
      ;; Run it every 5 minutes.
      
-     (run-at-time nil 300 'update-org)))
+     (run-at-time nil 300 'update-org)
+
+     ;; Inline images
+
+     (require 'iimage)
+
+     (add-to-list 'iimage-mode-image-regex-alist
+                  (cons (concat "\\[\\[file:\\(~?" iimage-mode-image-filename-regex
+                                "\\)\\]") 1))
+
+     (defun org-turn-on-iimage-in-org ()
+       "Display images in your org file"
+       (interactive)
+       (turn-on-iimage-mode)
+       (set-face-underline-p 'org-link nil))
+
+     (defun org-toggle-iimage-in-org ()
+       "Display images in your org file"
+       (interactive)
+       (if (face-underline-p 'org-link)
+           (set-face-underline-p 'org-link nil)
+         (set-face-underline-p 'org-link t))
+       (iimage-mode))
+
+     ;; Finally add an org-mode hook to display inline images
+     (defun my-org-mode-hook ()
+       (org-turn-on-iimage-in-org))
+     ;(org-display-inline-images))
+
+     (add-hook 'org-mode-hook 'my-org-mode-hook)))
 
 ;; Fits a window to the selected region, useful if you need to focus
 ;; on a section of text in a split window.
 
-(defun fit-window-to-region ()
+(defun fit-window-to-region (beg end)
   "Fits the current window to the selected region"
-  (interactive)
+  (interactive "r")
   (if (and transient-mark-mode mark-active)
       (progn
-        (narrow-to-region (region-beginning) (region-end))
+        (narrow-to-region beg end)
         (run-at-time 0.1 nil ; No idea why this doesn't work without the timer..
                      (lambda () (fit-window-to-buffer) (widen))))
     (message "No region selected")))
@@ -307,11 +340,13 @@ plus add font-size: 8pt"
 ;; on every machine I use..
 
 (eval-after-load "scss-mode"
-  '(setq scss-sass-command "sass"))
+  '(setq scss-sass-command "sass -C -t compressed"))
 
 ;; Load up a few modes that I use daily.
 
-(dolist (lib '(vimpulse vimpulse-surround rainbow-mode lambda-mode lorem-ipsum midnight pastebin chicken-scheme-extras scheme-complete eval-sexp-fu
+; todochiku?
+(dolist (lib '(vimpulse vimpulse-surround
+               rainbow-mode lambda-mode lorem-ipsum midnight pastebin chicken-scheme-extras scheme-complete eval-sexp-fu
                smart-compile uniquify kpm-list rainbow-delimiters smooth-scrolling))
   (require lib))
 
@@ -324,8 +359,27 @@ plus add font-size: 8pt"
 (autoload 'nxhtml-mumamo "nxhtml/autostart" "nXhtml Support" t)
 (autoload 'nxhtml-mode "nxhtml/autostart" "nXhtml Support" t)
 (autoload 'php-mode "php-mode" "PHP Mode" t)
+(autoload 'zencoding-mode "zencoding-mode" "Zen-Coding Mode" t)
+(autoload 'sqlite-dump "sqlite-dump" "SQLite Dump" t)
 
-(eval-after-load "sgml-mode" '(require 'html-script)) ; for quick toggling between script modes
+;; Calfw Calendar Framework for Org-mode
+(add-to-list 'load-path "~/.emacs.d/emacs-calfw")
+(autoload 'cfw:open-org-calendar "calfw-org" "Calfw Org-mode Source" t)
+
+(eval-after-load "sgml-mode"
+  '(progn
+     (require 'html-script) ; for quick toggling between script modes
+     (add-hook 'sgml-mode-hook 'zencoding-mode)))
+
+(eval-after-load "zencoding-mode"
+  '(setq zencoding-indentation 2))
+
+;(autoload 'evil-mode "evil/evil" "Evil Vim Emulation Mode" t)
+;
+;(eval-after-load "evil"
+;  '(progn
+;     (evil-mode 1)
+;     (setq evil-shift-width 2)))
 
 (setq coffee-js-mode 'js-mode)
 (autoload 'coffee-mode "coffee-mode" "Coffee Mode" t)
@@ -338,6 +392,7 @@ plus add font-size: 8pt"
 (add-to-list 'auto-mode-alist '("\\.html$" . sgml-mode))
 (add-to-list 'auto-mode-alist '("\\.php$" . sgml-mode)) ; sgml-mode in order to toggle script modes
 (add-to-list 'auto-mode-alist '("\\.coffeescript$" . coffee-mode))
+(add-to-list 'auto-mode-alist '("\\.db\\'" . sqlite-dump))
 
 ;; More setup stuff down here.
 
@@ -367,7 +422,18 @@ plus add font-size: 8pt"
    arg
    'backward-sexp
    'forward-sexp))
-
+ 
+;; Hack for "cit" and "dit" from Vim. Doesn't work quite the same
+;; but good enough for now!
+ 
+(vimpulse-define-text-object vimpulse-tag (arg)
+  "Select a tag"
+  :keys '("at" "it")
+  (vimpulse-inner-object-range
+   arg
+   (lambda (arg) (search-backward ">" nil nil arg) (forward-char))
+   (lambda (arg) (search-forward "<" nil nil arg) (backward-char))))
+ 
 ;; This is a useful function for renaming a file and a buffer at
 ;; the same time. Used really often.
 
@@ -431,7 +497,16 @@ plus add font-size: 8pt"
 
 (eval-after-load "php-mode"
   '(progn
+     (defun php-eval-region (beg end)
+       (interactive "r")
+       (message
+        (shell-command-to-string
+         (format "php -r 'echo %s;'"
+                 (replace-in-string (buffer-substring beg end) "'" "\"")))))
+
      (defun my-php-mode-hook ()
+       (local-set-key [f1] 'php-search-documentation)
+
        (c-set-offset 'case-label '+)
        (c-set-offset 'arglist-intro '+) ; for FAPI arrays and DBTNG
        (c-set-offset 'arglist-cont-nonempty 'c-lineup-math) ; for DBTNG fields and values
