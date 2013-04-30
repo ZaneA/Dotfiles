@@ -6,11 +6,24 @@
 (require 'cl)
 (require 'package)
 
-(dolist (repo '(("marmalade" . "http://marmalade-repo.org/packages/")
-                ("melpa"     . "http://melpa.milkbox.net/packages/")))
-  (add-to-list 'package-archives repo))
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages"))
+
+(setq packages
+      '(auto-complete chicken-scheme edit-server evil git-gutter
+        golden-ratio google-this inkpot-theme js2-mode kpm-list
+        legalese less-css-mode linum-relative magit markdown-mode org
+        popup pos-tip r5rs rainbow-delimiters rainbow-mode scratch
+        scss-mode simple-mode-line skewer-mode slime starter-kit
+        starter-kit-js starter-kit-ruby surround writegood-mode))
 
 (package-initialize)
+
+; Install missing packages
+(loop for package in packages
+      when (not (package-installed-p package))
+      when (y-or-n-p (format "Install %s? " package))
+      do (package-install package))
 
 ; Color theme
 (require 'color-theme)
@@ -74,6 +87,8 @@ adaptive-fill-mode is effective when joining."
 (setq visible-bell nil)
 (setq echo-keystrokes 0.1)
 (setq max-mini-window-height 0.75)
+
+(setq vc-follow-symlinks t)
 
 ; Remove word-wrapping
 (setq-default truncate-lines t)
