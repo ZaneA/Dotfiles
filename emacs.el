@@ -327,10 +327,9 @@ adaptive-fill-mode is effective when joining."
     (setq org-return-follows-link t)
     (setq org-startup-folded nil)
 
-                                        ; Set up agenda
+    ; Set up agenda
     (appt-activate t)
     (add-hook 'org-finalize-agenda-hook (lambda () (org-agenda-to-appt t)))
-    (run-with-idle-timer 600 t 'org-agenda-list)
     (org-agenda-list)))
 
 ;; Custom
