@@ -266,45 +266,6 @@ adaptive-fill-mode is effective when joining."
   (find-file file-name)
   (yank))
 
-(defvar hide-indentation-overlays nil)
-
-(defun hide-unnecessary-indentation (beg end)
-  "Hides unnecessary indentation at the beginning of a buffer."
-  (interactive "r")
-  (unless (local-variable-p 'hide-indentation-overlays)
-    (make-local-variable 'hide-indentation-overlays))
-  ; Remove old overlays first
-  (mapcar 'delete-overlay hide-indentation-overlays)
-  (save-excursion
-    (save-restriction
-      (narrow-to-region beg end)
-      (let* ((point-beginning (progn
-                                (beginning-of-buffer)
-                                (point)))
-             (point-indentation (progn
-                                  (or (back-to-indentation)
-                                      (forward-to-indentation))
-                                  (current-column)))
-             (point-end (progn
-                          (end-of-buffer)
-                          (unless (back-to-indentation)
-                            (previous-line))
-                          (move-to-column point-indentation t)
-                          (point))))
-        (apply-on-rectangle
-         (lambda (beg end)
-           (save-excursion
-             (let* ((beg-point (progn (move-to-column beg) (point)))
-                    (end-point (progn (move-to-column end) (point)))
-                    (overlay (make-overlay beg-point end-point)))
-               (setq hide-indentation-overlays
-                     (append
-                      (list overlay) hide-indentation-overlays))
-               (overlay-put overlay 'invisible t))))
-         point-beginning
-         point-end)
-        ))))
-
 (defvar guess-mode-syntax-rules
   '(("html-mode"     . "<.*?>")
     ("js2-mode"      . "var\\|[A-Za-z]+\\.[A-Za-z]+(")
