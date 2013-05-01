@@ -84,11 +84,20 @@ adaptive-fill-mode is effective when joining."
     (define-key evil-normal-state-map "J" 'evil-join-unfill)
     (define-key evil-visual-state-map "J" 'evil-join-unfill)))
 
+; Show current song in frame title
+(defun update-frame-title ()
+  (setq frame-title-format
+        `((buffer-name "%f" ("%b")) " (" mode-name ") | "
+          ,(replace-regexp-in-string
+            "\n$" ""
+            (shell-command-to-string "audtool --current-song")))))
+
+(setq update-frame-title-timer (run-with-timer 0 30 'update-frame-title))
+
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 
 (setq mouse-autoselect-window t)
-(setq frame-title-format '((buffer-name "%f" ("%b")) " (" mode-name ")"))
 (setq-default cursor-in-non-selected-windows nil)
 
 (setq visible-bell nil)
