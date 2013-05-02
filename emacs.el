@@ -12,9 +12,9 @@
 (setq packages
       '(auto-complete bind-key chicken-scheme edit-server evil
         git-gutter git-gutter-fringe golden-ratio google-this
-        inkpot-theme js2-mode kpm-list legalese less-css-mode
-        linum-relative magit markdown-mode org popup pos-tip r5rs
-        rainbow-delimiters rainbow-mode scratch scss-mode
+        inkpot-theme jade-mode js2-mode kpm-list legalese
+        less-css-mode linum-relative magit markdown-mode org popup
+        pos-tip r5rs rainbow-delimiters rainbow-mode scratch scss-mode
         simple-mode-line skewer-mode slime starter-kit starter-kit-js
         starter-kit-ruby surround use-package writegood-mode))
 
@@ -170,7 +170,18 @@ adaptive-fill-mode is effective when joining."
 
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'scheme-mode-hook (lambda () (setq adaptive-fill-mode t)))
+
+(use-package chicken-scheme
+  :mode ("\\.scm$" . scheme-mode)
+  :init
+  (progn
+    (font-lock-add-keywords 'scheme-mode '(("(\\(lambda\\*\\)[ \n]" 1 'font-lock-keyword-face)))
+    (put 'define* 'scheme-indent-function 1)
+    (put 'lambda* 'scheme-indent-function 1)
+    (add-hook 'scheme-mode-hook
+              (lambda ()
+                (setq adaptive-fill-mode t)
+                (esk-pretty-lambdas)))))
 
 ; Auto-complete
 (use-package pos-tip)
