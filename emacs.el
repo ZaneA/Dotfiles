@@ -13,10 +13,11 @@
       '(auto-complete bind-key chicken-scheme edit-server evil
         git-gutter git-gutter-fringe golden-ratio google-this
         inkpot-theme jade-mode js2-mode kpm-list legalese
-        less-css-mode linum-relative magit markdown-mode org popup
-        pos-tip r5rs rainbow-delimiters rainbow-mode scratch scss-mode
-        simple-mode-line skewer-mode slime starter-kit starter-kit-js
-        starter-kit-ruby surround use-package writegood-mode))
+        less-css-mode linum-relative magit markdown-mode org php-mode
+        popup pos-tip r5rs rainbow-delimiters rainbow-mode scratch
+        scss-mode simple-mode-line skewer-mode slime starter-kit
+        starter-kit-js starter-kit-ruby surround use-package
+        writegood-mode))
 
 (package-initialize)
 
