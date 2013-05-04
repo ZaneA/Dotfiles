@@ -10,14 +10,14 @@
 (add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
 
 (setq packages
-      '(auto-complete bind-key chicken-scheme edit-server evil
-        git-gutter git-gutter-fringe golden-ratio google-this
-        inkpot-theme jade-mode js2-mode kpm-list legalese
+      '(angular-snippets auto-complete bind-key chicken-scheme
+        edit-server evil git-gutter git-gutter-fringe golden-ratio
+        google-this inkpot-theme jade-mode js2-mode kpm-list legalese
         less-css-mode linum-relative magit markdown-mode org php-mode
         popup pos-tip r5rs rainbow-delimiters rainbow-mode scratch
         scss-mode simple-mode-line skewer-mode slime starter-kit
         starter-kit-js starter-kit-ruby surround use-package
-        writegood-mode))
+        writegood-mode yasnippet))
 
 (package-initialize)
 
@@ -198,6 +198,12 @@ adaptive-fill-mode is effective when joining."
               (lambda ()
                 (setq adaptive-fill-mode t)
                 (esk-pretty-lambdas)))))
+
+; Snippets
+(use-package angular-snippets)
+(use-package yasnippet
+  :init
+  (yas-global-mode t))
 
 ; Auto-complete
 (use-package pos-tip)
