@@ -11,13 +11,14 @@
 
 (setq packages
       '(angular-snippets auto-complete bind-key chicken-scheme
-        edit-server evil git-gutter git-gutter-fringe golden-ratio
-        google-this inkpot-theme jade-mode js2-mode kpm-list legalese
-        less-css-mode linum-relative magit markdown-mode org php-mode
-        popup pos-tip r5rs rainbow-delimiters rainbow-mode scratch
-        scss-mode simple-mode-line skewer-mode slime starter-kit
-        starter-kit-js starter-kit-ruby surround use-package
-        writegood-mode yasnippet))
+        edit-server evil fold-this git-gutter git-gutter-fringe
+        golden-ratio google-this inkpot-theme jade-mode js2-mode
+        kpm-list legalese less-css-mode linum-relative magit
+        markdown-mode org php-mode popup pos-tip r5rs
+        rainbow-delimiters rainbow-mode scratch scss-mode
+        simple-mode-line skewer-mode slime starter-kit starter-kit-js
+        starter-kit-ruby surround use-package writegood-mode
+        yasnippet))
 
 (package-initialize)
 
@@ -85,6 +86,18 @@ adaptive-fill-mode is effective when joining."
 
     (define-key evil-normal-state-map "J" 'evil-join-unfill)
     (define-key evil-visual-state-map "J" 'evil-join-unfill)))
+
+(use-package fold-this
+  :init
+  (progn
+    (evil-define-operator evil-fold-operator (beg end type)
+      "Fold the region from BEG to END."
+      (interactive "<R>")
+      (fold-this beg end))
+
+    (define-key evil-normal-state-map "f" 'evil-fold-operator)
+    (define-key evil-visual-state-map "f" 'evil-fold-operator)
+    ))
 
 ; Show current song in frame title
 (defun update-frame-title ()
@@ -211,7 +224,12 @@ adaptive-fill-mode is effective when joining."
   :init
   (progn
     (ac-config-default)
+    (setq-default ac-sources '(ac-source-yasnippet
+                              ac-source-abbrev
+                              ac-source-dictionary
+                              ac-source-words-in-same-mode-buffers))
     (setq tab-always-indent 'complete)
+    (add-to-list 'ac-modes 'html-mode t)
     (add-to-list 'completion-styles 'initials t)))
 
 (use-package git-gutter-fringe
