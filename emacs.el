@@ -385,6 +385,66 @@ adaptive-fill-mode is effective when joining."
     (add-hook 'org-finalize-agenda-hook (lambda () (org-agenda-to-appt t)))
     (org-agenda-list)))
 
+(defun audacious-update-playlist ()
+  "Show/update a playlist buffer."
+  (interactive)
+  (switch-to-buffer (get-buffer-create "*audacious-playlist*"))
+  (audacious-mode)
+  (erase-buffer)
+  (start-process "audtool" (current-buffer) "audtool" "playlist-display"))
+
+(defun audacious-jump-to-current ()
+  "Jump to current song in playlist buffer."
+  (interactive)
+  (remove-overlays)
+  (let ((position (replace-regexp-in-string
+                   "\n$" ""
+                   (shell-command-to-string "audtool playlist-position"))))
+    (beginning-of-buffer)
+    (search-forward position nil t)
+    (overlay-recenter (point))
+    (beginning-of-line)
+    (overlay-put (make-overlay (line-beginning-position) (line-end-position)) 'face 'bold)))
+
+(defun audacious-play-position ()
+  "Play the song at current position."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (let ((position (number-to-string (read (current-buffer)))))
+      (call-process "audtool" nil nil nil "playlist-jump" position)
+      (call-process "audtool" nil nil nil "playback-play"))))
+
+(defvar audacious-font-lock
+  '(("^\\(.*\\) | \\(.*\\) | \\(.*\\)$"
+     (1 font-lock-variable-name-face t)
+     (2 font-lock-string-face t)
+     (3 font-lock-constant-face t)))
+  "Font lock for Audacious mode.")
+
+(define-derived-mode audacious-mode special-mode
+  "Audacious"
+  "A major mode for controlling an Audacious playlist."
+  (set (make-local-variable 'font-lock-defaults) '(audacious-font-lock))
+
+  (hl-line-mode 1)
+
+  (define-key audacious-mode-map (kbd "q") 'quit-window)
+  (define-key audacious-mode-map (kbd "r") 'audacious-update-playlist)
+  (define-key audacious-mode-map (kbd "c") 'audacious-jump-to-current)
+  (define-key audacious-mode-map (kbd "k") 'previous-line)
+  (define-key audacious-mode-map (kbd "j") 'next-line)
+  (define-key audacious-mode-map (kbd "?") 'describe-mode)
+  (define-key audacious-mode-map (kbd "RET") 'audacious-play-position)
+
+  (define-key evil-normal-state-local-map (kbd "q") 'quit-window)
+  (define-key evil-normal-state-local-map (kbd "r") 'audacious-update-playlist)
+  (define-key evil-normal-state-local-map (kbd "c") 'audacious-jump-to-current)
+  (define-key evil-normal-state-local-map (kbd "k") 'previous-line)
+  (define-key evil-normal-state-local-map (kbd "j") 'next-line)
+  (define-key evil-normal-state-local-map (kbd "?") 'describe-mode)
+  (define-key evil-normal-state-local-map (kbd "RET") 'audacious-play-position))
+
 ;; Custom
 
 (custom-set-variables
