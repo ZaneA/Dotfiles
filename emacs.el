@@ -185,7 +185,9 @@ adaptive-fill-mode is effective when joining."
 
 (use-package golden-ratio
   :init
-  (golden-ratio-mode t))
+  (progn
+    (add-to-list 'golden-ratio-extra-commands 'handle-select-window)
+    (golden-ratio-mode t)))
 
 (use-package rainbow-delimiters
   :init
