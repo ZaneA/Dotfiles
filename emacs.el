@@ -101,11 +101,12 @@ adaptive-fill-mode is effective when joining."
 
 ; Show current song in frame title
 (defun update-frame-title ()
+  (audacious-jump-to-current)
   (setq frame-title-format
         `((buffer-name "%f" ("%b")) " (" mode-name ") | "
           ,(replace-regexp-in-string
             "\n$" ""
-            (shell-command-to-string "audtool --current-song")))))
+            (shell-command-to-string "audtool current-song")))))
 
 (setq update-frame-title-timer (run-with-timer 0 30 'update-frame-title))
 
@@ -385,35 +386,61 @@ adaptive-fill-mode is effective when joining."
     (add-hook 'org-finalize-agenda-hook (lambda () (org-agenda-to-appt t)))
     (org-agenda-list)))
 
-(defun audacious-update-playlist ()
-  "Show/update a playlist buffer."
+(defvar audacious-playlist-buffer-name
+  "*audacious-playlist*"
+  "Name of the buffer that will hold the Audacious playlist.")
+
+(defun audacious-show-playlist ()
+  "Show the playlist buffer."
   (interactive)
-  (switch-to-buffer (get-buffer-create "*audacious-playlist*"))
+  (switch-to-buffer (get-buffer-create audacious-playlist-buffer-name))
   (audacious-mode)
-  (erase-buffer)
-  (start-process "audtool" (current-buffer) "audtool" "playlist-display"))
+  (audacious-update-playlist))
+
+(defun audacious-update-playlist ()
+  "Update the playlist buffer."
+  (interactive)
+  (let ((buffer (get-buffer audacious-playlist-buffer-name)))
+    (if buffer
+        (with-current-buffer buffer
+          (let ((inhibit-read-only t))
+            (erase-buffer)
+            (start-process "audtool" (current-buffer) "audtool" "playlist-display")))
+      (when (called-interactively-p)
+        (error "No Audacious buffer open")))))
 
 (defun audacious-jump-to-current ()
   "Jump to current song in playlist buffer."
   (interactive)
-  (remove-overlays)
-  (let ((position (replace-regexp-in-string
-                   "\n$" ""
-                   (shell-command-to-string "audtool playlist-position"))))
-    (beginning-of-buffer)
-    (search-forward position nil t)
-    (overlay-recenter (point))
-    (beginning-of-line)
-    (overlay-put (make-overlay (line-beginning-position) (line-end-position)) 'face 'bold)))
+  (let ((buffer (get-buffer audacious-playlist-buffer-name)))
+    (if buffer
+        (with-current-buffer buffer
+          (remove-overlays)
+          (let ((position (replace-regexp-in-string
+                           "\n$" ""
+                           (shell-command-to-string "audtool playlist-position"))))
+            (beginning-of-buffer)
+            (search-forward position nil t)
+            (overlay-recenter (point))
+            (beginning-of-line)
+            (overlay-put (make-overlay (line-beginning-position) (line-end-position)) 'face 'bold)))
+      (when (called-interactively-p)
+        (error "No Audacious buffer open")))))
 
 (defun audacious-play-position ()
   "Play the song at current position."
   (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (let ((position (number-to-string (read (current-buffer)))))
-      (call-process "audtool" nil nil nil "playlist-jump" position)
-      (call-process "audtool" nil nil nil "playback-play"))))
+  (let ((buffer (get-buffer audacious-playlist-buffer-name)))
+    (if buffer
+        (with-current-buffer buffer
+          (save-excursion
+            (beginning-of-line)
+            (let ((position (number-to-string (read (current-buffer)))))
+              (call-process "audtool" nil nil nil "playlist-jump" position)
+              (call-process "audtool" nil nil nil "playback-play")
+              (audacious-jump-to-current))))
+      (when (called-interactively-p)
+        (error "No Audacious buffer open")))))
 
 (defvar audacious-font-lock
   '(("^\\(.*\\) | \\(.*\\) | \\(.*\\)$"
