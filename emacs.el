@@ -101,7 +101,6 @@ adaptive-fill-mode is effective when joining."
 
 ; Show current song in frame title
 (defun update-frame-title ()
-  (audacious-jump-to-current)
   (setq frame-title-format
         `((buffer-name "%f" ("%b")) " (" mode-name ") | "
           ,(replace-regexp-in-string
@@ -372,10 +371,18 @@ adaptive-fill-mode is effective when joining."
 
 ;; Org-mode customizations
 (use-package org
+  :bind ("C-c c" . org-capture)
   :init
   (progn
     (evil-define-key 'normal org-mode-map (kbd "RET") 'org-return)
     (setq org-agenda-files (directory-files "~/Documents/org" t ".org$"))
+    (setq org-default-notes-file "~/.emacs.d/capture.org")
+    (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
+    (setq org-refile-use-outline-path 'file)
+    (setq org-outline-path-complete-in-steps nil)
+    (setq org-refile-allow-creating-parent-nodes 'confirm)
+    (setq org-startup-align-all-tables t)
+    (setq org-completion-use-ido t)
     (setq org-agenda-skip-deadline-if-done t)
     (setq org-agenda-skip-scheduled-if-done t)
     (setq org-return-follows-link t)
