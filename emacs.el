@@ -12,8 +12,8 @@
 (setq packages
       '(angular-snippets auto-complete bind-key chicken-scheme
         edit-server evil fold-this git-gutter git-gutter-fringe
-        golden-ratio google-this inkpot-theme jade-mode js2-mode
-        kpm-list legalese less-css-mode linum-relative magit
+        go-snippets golden-ratio google-this inkpot-theme jade-mode
+        js2-mode kpm-list legalese less-css-mode linum-relative magit
         markdown-mode org php-mode popup pos-tip r5rs
         rainbow-delimiters rainbow-mode scratch scss-mode
         simple-mode-line skewer-mode slime starter-kit starter-kit-js
@@ -33,22 +33,28 @@
 ; Color theme
 (use-package color-theme
   :init
-  (load-theme 'twilight-bright t))
+  (load-theme 'birds-of-paradise-plus t))
+  ;(load-theme 'phoenix-dark-mono t))
+  ;(load-theme 'subatomic t))
+  ;(load-theme 'phoenix-dark-pink t))
+  ;(load-theme 'twilight-bright t))
   ;(load-theme 'inkpot t))
 
 (setq-default line-spacing 3)
 
 ; Font
-(set-frame-font "SourceCodePro-13")
+(set-frame-font "SourceCodePro-10.5")
 (add-to-list 'default-frame-alist
-             '(font . "SourceCodePro-13"))
+             '(font . "SourceCodePro-10.5"))
 
 (use-package simple-mode-line
   :init
   (progn
-    (setq-default simple-mode-line-small-font-height (face-attribute 'default :height))
-    (setq-default simple-mode-line-inactive-line-width simple-mode-line-line-width)
-    (activate-simple-mode-line)))
+    (activate-simple-mode-line)
+    (set-face-attribute 'mode-line-inactive nil
+                        :height (face-attribute 'default :height)
+                        :box (list :line-width 10 :color "black" :style nil))
+    ))
 
 ; Evil
 (use-package evil
@@ -146,6 +152,7 @@ adaptive-fill-mode is effective when joining."
 (use-package ido
   :init
   (progn
+    (ido-everywhere t)
     ; Vertical ido setup
     (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
     (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
@@ -363,6 +370,13 @@ adaptive-fill-mode is effective when joining."
   "Kill buffer when quitting a window."
   (ad-set-arg 0 t))
 
+(defun fullscreen ()
+  (interactive)
+  (shell-command (concat "wmctrl -i -r " (frame-parameter nil 'outer-window-id) " -btoggle,maximized_vert,maximized_horz")))
+  ;(shell-command (concat "wmctrl -i -r " (frame-parameter nil 'outer-window-id) " -btoggle,fullscreen")))
+
+(global-set-key (kbd "<f11>") 'fullscreen)
+
 ; Other keybindings
 (global-set-key (kbd "C-x C-c") 'intelligent-close)
 (global-set-key (kbd "M-\\") 'align-regexp)
@@ -434,6 +448,25 @@ adaptive-fill-mode is effective when joining."
       (when (called-interactively-p)
         (error "No Audacious buffer open")))))
 
+(defun audacious-track-at-point ()
+  (save-excursion
+    (beginning-of-line)
+    (if (re-search-forward "^.* | \\(.*\\) - .* - \\(.*?\\)[ ]* | .*$" nil t)
+        (cons (match-string 1) (match-string 2))
+      nil)))
+
+(defun audacious-show-lyrics ()
+  "Show lyrics of track at point in Audacious buffer."
+  (interactive)
+  (let ((match (audacious-track-at-point)))
+    (if match
+        (let ((artist (car match))
+              (track (cdr match)))
+          (browse-url
+           (format "http://lyrics.wikia.com/%s:%s"
+                   artist track)))
+      (error "Couldn't find track at point"))))
+
 (defun audacious-play-position ()
   "Play the song at current position."
   (interactive)
@@ -469,6 +502,7 @@ adaptive-fill-mode is effective when joining."
   (define-key audacious-mode-map (kbd "k") 'previous-line)
   (define-key audacious-mode-map (kbd "j") 'next-line)
   (define-key audacious-mode-map (kbd "?") 'describe-mode)
+  (define-key audacious-mode-map (kbd "L") 'audacious-show-lyrics)
   (define-key audacious-mode-map (kbd "RET") 'audacious-play-position)
 
   (define-key evil-normal-state-local-map (kbd "q") 'quit-window)
@@ -477,6 +511,7 @@ adaptive-fill-mode is effective when joining."
   (define-key evil-normal-state-local-map (kbd "k") 'previous-line)
   (define-key evil-normal-state-local-map (kbd "j") 'next-line)
   (define-key evil-normal-state-local-map (kbd "?") 'describe-mode)
+  (define-key evil-normal-state-local-map (kbd "L") 'audacious-show-lyrics)
   (define-key evil-normal-state-local-map (kbd "RET") 'audacious-play-position))
 
 ;; Custom
