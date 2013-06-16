@@ -12,13 +12,13 @@
 (setq packages
       '(angular-snippets auto-complete bind-key chicken-scheme
         edit-server evil fold-this git-gutter git-gutter-fringe
-        go-snippets golden-ratio google-this inkpot-theme jade-mode
-        js2-mode kpm-list legalese less-css-mode linum-relative magit
-        markdown-mode org php-mode popup pos-tip r5rs
-        rainbow-delimiters rainbow-mode scratch scss-mode
-        simple-mode-line skewer-mode slime starter-kit starter-kit-js
-        starter-kit-ruby surround use-package writegood-mode
-        yasnippet))
+        git-messenger go-snippets golden-ratio google-this
+        inkpot-theme jade-mode js2-mode kpm-list legalese
+        less-css-mode linum-relative magit markdown-mode org php-mode
+        popup pos-tip r5rs rainbow-delimiters rainbow-mode scratch
+        scss-mode simple-mode-line skewer-mode slime starter-kit
+        starter-kit-js starter-kit-ruby surround use-package
+        writegood-mode yasnippet))
 
 (package-initialize)
 
@@ -190,6 +190,11 @@ adaptive-fill-mode is effective when joining."
   :init
   (google-this-mode t))
 
+(use-package git-messenger
+  :bind ("C-x v p" . git-messenger:popup-message)
+  :init
+  (setq git-messenger:show-detail t))
+
 (use-package golden-ratio
   :init
   (progn
@@ -281,6 +286,10 @@ adaptive-fill-mode is effective when joining."
     (run-with-idle-timer 300 t 'clean-buffer-list)))
 
 ;; Custom methods
+
+(defun sort-words (reverse beg end)
+  (interactive "*P\nr")
+  (sort-regexp-fields reverse "\\(\\sw\\|\\s_\\)+" "\\&" beg end))
 
 (defun make-windows-with-modes (modes)
   "Open split windows for each mode specified (space separated)."
@@ -523,9 +532,10 @@ adaptive-fill-mode is effective when joining."
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector ["#FFFFFF" "#d15120" "#5f9411" "#d2ad00" "#6b82a7" "#a66bab" "#6b82a7" "#505050"])
  '(ansi-term-color-vector [unspecified "#FFFFFF" "#d15120" "#5f9411" "#d2ad00" "#6b82a7" "#a66bab" "#6b82a7" "#505050"])
- '(custom-safe-themes (quote ("79079f35dedfeb0a76f33a4339e6d49f64875bfd6ec8aa3721133441268ce8c3" "da9ac29e5f74119cd70eb2e33e500b0ff9448f16b8fee4f7dd7dbb5e74d3eda1" "2cafc5ae0989cf934adb98c23c5bc2bf45f8c8bd35ce69a020bdb4957c5243bb" "c02fb5690dff0a6e599ba388c2ee167990333a1cd96338cba8abfc4eb0ba1fb9" "66bb5247f8f409414813b3353f15761802f1a996b2d32cbb873ce220c296402b" "a1d9ee31e3ecd85a45c82efe0280f1f7b303e5135c2eb7755ecaba788a2487ad" "bef599043372a954dbf1f30fa372b24736ea62124c4dbdc9aa2b88e99af330c3" "e4f90650031231c035a30cf110dfe40c03291a7b1b8c3826ffc31fc15b787fe4" "90ea1f27b41b936e8cbbb1d194a780e010676413a8e52ceab1cfb846f2f7db76" "a54d42e2c032cc8633feedb0da5445bbcdf1ba3dc550c0d6841fcbe25bfcd95a" "644a9b6d0b382ba0e96ae7df6aa9172c77790ef4c65ece93a6d15177ac32905b" "134d090f2473516f8aec4ab1ec388f567e1032bd1ca4f4aa72945b7dff675219" "8eb5a19ecd21b0305db248f2540bad2f43a253cbb851fe81786caa1533c43601" "06f5145c01ec774a0abb49eeffa3980743ce2f997112b537effeb188b7c51caf" "b6f7795c2fbf75baf3419c60ef7625154c046fc2b10e3fdd188e5757e08ac0ec" "936e5cac238333f251a8d76a2ed96c8191b1e755782c99ea1d7b8c215e66d11e" "446c73cdfb49f1dab4c322e51ac00a536fb0e3cb7e6809b9f4616e0858012e92" "4dacec7215677e4a258e4529fac06e0231f7cdd54e981d013d0d0ae0af63b0c8" "8f6537eb6f9d66b060c736f5f680f5c661e0a6b311b86defa293bc5ba104a030" "3bd9497fb8f39c28ab58a9e957152ba2dc41223c23c5520ef10fc7bd6b222384" "246a51f19b632c27d7071877ea99805d4f8131b0ff7acb8a607d4fd1c101e163" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "15fa54dffe7ef4c91033739a8d2eba0fb897337dffe1f98b0629978183690c42" "1c27614df08fb5f4457d97d15c50a118d3cb143431e7dbd7eb833e94b880c286" "1cee2deb577b631e22b773120c95a9201a1e994f297802862daa30d311155c8c" "35cdc21c39fce0c36d86dc17a0b68682756511af6ffe165236f59bab47078f73" "d51911fb5c7315afee507a137c763f014ca162cd14736ee945586355229c607c" "fe155bdda1ce7f8cd362b3964f430c7ad0313ee8d32e2dd561319f392d528174" "06ffa5c99dfe0042b6639b28dc9c5fbc2137ca6577cd8b901a664e59f8fab0fb" "e0d089b338f8af95d12e51f73e87c516edf750a9449dec850409f301c3047da9" "48f0724fdd47bdc2be2df019e7ea2a33edc8a08791d03b28b1386aa9730c5d88" "253bd40645913cc95b9f8ef0533082cb9a4cb0810f854c030f3ef833ee5b9731" "059db9c5e55631d154bf3e53233cdc30616020a40f13530d005912ca104a4178" "6fc907278bbe283967372527ad3a98546b4a53cf5a78746cadd6d46bd8d8d05c" "9d9ba63d13aa4401627c7e2f59f3ee1e30dc931b02505c8c54727b696e46b350" "d5e5040c58f860f2b1ad6e652bb00383b7b200125c72d3d99091934afb0567b0" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "5339210234ec915d7d3fd87bfeb506bfc436ff7277a55516ab1781ec85c57224" "281e88e0dfab4980a157331b368fb2e5eba315c38f38099d2d9153980a8047ba" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
+ '(custom-safe-themes (quote ("75d4ccc5e912b93f722e57cca3ca1a15e079032cd69fd9bc67268b4c85639663" "405fda54905200f202dd2e6ccbf94c1b7cc1312671894bc8eca7e6ec9e8a41a2" "24cb1b9c182198f52df7cebf378ee9ecca93a2daeb9a90049a2f1f556119c742" "c1dd7946f725d23a46eb63af40a22b312b1bd3b70adcc068390b1264b0921412" "0c1fbb6f05ccd8a8e8420a28c78af1300e37bac0e6ed9e84d1170cf4870be9e3" "a8959e608df4ef23945b03a3bec8f78b05df7cdd88e87671355222ef257a50a8" "f851f8aa76ca04c9e052910bb116592721f78cc7e0dc3db7f1b462ae56126abd" "7e38d8ade108c0abf5138dd0123179527803be758a36e87a6d4a79f218a03e09" "82cc9490e4a49cd12a4b2fd8f37e67f5cdd6f243636a5f9ad064987afe1abebc" "bbf8b524322ae009d8f6a9410cb4b261648fdf23ebb3214973db47ddfa229ec3" "b8795891e523f49ae4455793ad185df846ea1cad0b96c816ae1132d5c02bbea5" "760e09d7acbc963590c97ddd27652ea67e2c918452251c0ad56ea7579cb5a68d" "79079f35dedfeb0a76f33a4339e6d49f64875bfd6ec8aa3721133441268ce8c3" "da9ac29e5f74119cd70eb2e33e500b0ff9448f16b8fee4f7dd7dbb5e74d3eda1" "2cafc5ae0989cf934adb98c23c5bc2bf45f8c8bd35ce69a020bdb4957c5243bb" "c02fb5690dff0a6e599ba388c2ee167990333a1cd96338cba8abfc4eb0ba1fb9" "66bb5247f8f409414813b3353f15761802f1a996b2d32cbb873ce220c296402b" "a1d9ee31e3ecd85a45c82efe0280f1f7b303e5135c2eb7755ecaba788a2487ad" "bef599043372a954dbf1f30fa372b24736ea62124c4dbdc9aa2b88e99af330c3" "e4f90650031231c035a30cf110dfe40c03291a7b1b8c3826ffc31fc15b787fe4" "90ea1f27b41b936e8cbbb1d194a780e010676413a8e52ceab1cfb846f2f7db76" "a54d42e2c032cc8633feedb0da5445bbcdf1ba3dc550c0d6841fcbe25bfcd95a" "644a9b6d0b382ba0e96ae7df6aa9172c77790ef4c65ece93a6d15177ac32905b" "134d090f2473516f8aec4ab1ec388f567e1032bd1ca4f4aa72945b7dff675219" "8eb5a19ecd21b0305db248f2540bad2f43a253cbb851fe81786caa1533c43601" "06f5145c01ec774a0abb49eeffa3980743ce2f997112b537effeb188b7c51caf" "b6f7795c2fbf75baf3419c60ef7625154c046fc2b10e3fdd188e5757e08ac0ec" "936e5cac238333f251a8d76a2ed96c8191b1e755782c99ea1d7b8c215e66d11e" "446c73cdfb49f1dab4c322e51ac00a536fb0e3cb7e6809b9f4616e0858012e92" "4dacec7215677e4a258e4529fac06e0231f7cdd54e981d013d0d0ae0af63b0c8" "8f6537eb6f9d66b060c736f5f680f5c661e0a6b311b86defa293bc5ba104a030" "3bd9497fb8f39c28ab58a9e957152ba2dc41223c23c5520ef10fc7bd6b222384" "246a51f19b632c27d7071877ea99805d4f8131b0ff7acb8a607d4fd1c101e163" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "15fa54dffe7ef4c91033739a8d2eba0fb897337dffe1f98b0629978183690c42" "1c27614df08fb5f4457d97d15c50a118d3cb143431e7dbd7eb833e94b880c286" "1cee2deb577b631e22b773120c95a9201a1e994f297802862daa30d311155c8c" "35cdc21c39fce0c36d86dc17a0b68682756511af6ffe165236f59bab47078f73" "d51911fb5c7315afee507a137c763f014ca162cd14736ee945586355229c607c" "fe155bdda1ce7f8cd362b3964f430c7ad0313ee8d32e2dd561319f392d528174" "06ffa5c99dfe0042b6639b28dc9c5fbc2137ca6577cd8b901a664e59f8fab0fb" "e0d089b338f8af95d12e51f73e87c516edf750a9449dec850409f301c3047da9" "48f0724fdd47bdc2be2df019e7ea2a33edc8a08791d03b28b1386aa9730c5d88" "253bd40645913cc95b9f8ef0533082cb9a4cb0810f854c030f3ef833ee5b9731" "059db9c5e55631d154bf3e53233cdc30616020a40f13530d005912ca104a4178" "6fc907278bbe283967372527ad3a98546b4a53cf5a78746cadd6d46bd8d8d05c" "9d9ba63d13aa4401627c7e2f59f3ee1e30dc931b02505c8c54727b696e46b350" "d5e5040c58f860f2b1ad6e652bb00383b7b200125c72d3d99091934afb0567b0" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "5339210234ec915d7d3fd87bfeb506bfc436ff7277a55516ab1781ec85c57224" "281e88e0dfab4980a157331b368fb2e5eba315c38f38099d2d9153980a8047ba" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
  '(fci-rule-character-color "#d9d9d9")
- '(fci-rule-color "#d9d9d9"))
+ '(fci-rule-color "#d9d9d9")
+ '(org-agenda-files (quote ("/home/zanea/Documents/org/events.org" "/home/zanea/Documents/org/finances.org" "/home/zanea/Documents/org/iAko.org" "/home/zanea/Documents/org/log.org" "/home/zanea/Documents/org/recurring.org" "/home/zanea/Documents/org/techxpo.org" "/home/zanea/Documents/org/todo.org"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
