@@ -12,13 +12,12 @@
 (setq packages
       '(auto-complete bind-key birds-of-paradise-plus-theme
         chicken-scheme direx edit-server evil fold-this git-gutter
-        git-gutter-fringe git-messenger go-snippets golden-ratio
-        jade-mode js2-mode kpm-list legalese less-css-mode
-        linum-relative magit markdown-mode org php-mode popup popwin
-        pos-tip r5rs rainbow-delimiters rainbow-mode scratch scss-mode
-        simple-mode-line skewer-mode slime soothe-theme starter-kit
-        starter-kit-js starter-kit-ruby surround use-package
-        writegood-mode))
+        git-gutter-fringe git-messenger golden-ratio jade-mode
+        js2-mode kpm-list legalese less-css-mode linum-relative magit
+        markdown-mode org php-mode popup popwin pos-tip powerline r5rs
+        rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
+        slime soothe-theme starter-kit starter-kit-js starter-kit-ruby
+        surround use-package writegood-mode))
 
 (package-initialize)
 
@@ -47,14 +46,14 @@
 (add-to-list 'default-frame-alist
              '(font . "SourceCodePro-10.5"))
 
-(use-package simple-mode-line
+(use-package powerline
   :init
   (progn
-    (activate-simple-mode-line)
-    (set-face-attribute 'mode-line-inactive nil
-                        :height (face-attribute 'default :height)
-                        :box (list :line-width 10 :color "black" :style nil))
-    ))
+    (powerline-default-theme)
+    (set-face-attribute 'mode-line nil :box nil :font "SourceCodePro-9")
+    (set-face-attribute 'mode-line-inactive nil :box nil)
+    (set-face-attribute 'powerline-active1 nil :background "#282828")
+    (set-face-attribute 'powerline-active2 nil :background "#333333")))
 
 ; Evil
 (use-package evil
@@ -226,6 +225,9 @@ adaptive-fill-mode is effective when joining."
 (use-package direx
   :init
   (progn
+    (setq direx:closed-icon "+ ")
+    (setq direx:leaf-icon "| ")
+    (setq direx:open-icon "> ")
     (define-key direx:direx-mode-map [mouse-1] 'direx:mouse-2)
     (define-key direx:direx-mode-map [mouse-3] 'direx:mouse-1)
     (push '(direx:direx-mode :position left :width 30 :dedicated t :stick t :noselect t) popwin:special-display-config)))
@@ -240,11 +242,13 @@ adaptive-fill-mode is effective when joining."
   (progn
     (ac-config-default)
     (setq-default ac-sources '(ac-source-abbrev
-                              ac-source-dictionary
-                              ac-source-words-in-same-mode-buffers))
+                               ac-source-dictionary
+                               ac-source-words-in-same-mode-buffers))
     (setq tab-always-indent 'complete)
     (add-to-list 'ac-modes 'html-mode t)
-    (add-to-list 'completion-styles 'initials t)))
+    (add-to-list 'completion-styles 'initials t)
+    (define-key ac-complete-mode-map (kbd "C-p") 'ac-previous)
+    (define-key ac-complete-mode-map (kbd "C-n") 'ac-next)))
 
 (use-package git-gutter-fringe
   :init
