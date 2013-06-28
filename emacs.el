@@ -246,6 +246,7 @@ adaptive-fill-mode is effective when joining."
                                ac-source-words-in-same-mode-buffers))
     (setq tab-always-indent 'complete)
     (add-to-list 'ac-modes 'html-mode t)
+    (add-to-list 'ac-modes 'less-css-mode t)
     (add-to-list 'completion-styles 'initials t)
     (define-key ac-complete-mode-map (kbd "C-p") 'ac-previous)
     (define-key ac-complete-mode-map (kbd "C-n") 'ac-next)))
