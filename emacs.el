@@ -13,11 +13,12 @@
       '(auto-complete bind-key birds-of-paradise-plus-theme
         chicken-scheme direx edit-server evil fold-this git-gutter
         git-gutter-fringe git-messenger golden-ratio jade-mode
-        js2-mode kpm-list legalese less-css-mode linum-relative magit
-        markdown-mode org php-mode popup popwin pos-tip powerline r5rs
-        rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
-        slime soothe-theme starter-kit starter-kit-js starter-kit-ruby
-        surround use-package writegood-mode))
+        jinja2-mode js2-mode kpm-list legalese less-css-mode
+        linum-relative magit markdown-mode nginx-mode org php-mode
+        popup popwin pos-tip powerline r5rs rainbow-delimiters
+        rainbow-mode scratch scss-mode skewer-mode slime soothe-theme
+        starter-kit starter-kit-js starter-kit-ruby surround
+        use-package writegood-mode))
 
 (package-initialize)
 
