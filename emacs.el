@@ -11,9 +11,9 @@
 
 (setq packages
       '(auto-complete bind-key birds-of-paradise-plus-theme
-        chicken-scheme direx edit-server evil fold-this git-gutter
-        git-gutter-fringe git-messenger golden-ratio jade-mode
-        jinja2-mode js2-mode kpm-list legalese less-css-mode
+        chicken-scheme color-theme direx edit-server evil fold-this
+        git-gutter git-gutter-fringe git-messenger golden-ratio
+        jade-mode jinja2-mode js2-mode kpm-list legalese less-css-mode
         linum-relative magit markdown-mode nginx-mode nyan-mode org
         php-mode popup popwin pos-tip powerline r5rs
         rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
