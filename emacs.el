@@ -17,8 +17,8 @@
         linum-relative magit markdown-mode nginx-mode nyan-mode org
         php-mode popup popwin pos-tip powerline r5rs
         rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
-        slime soothe-theme starter-kit starter-kit-js starter-kit-ruby
-        surround use-package writegood-mode))
+        slime solarized-theme soothe-theme starter-kit starter-kit-js
+        starter-kit-ruby surround use-package writegood-mode))
 
 (package-initialize)
 
