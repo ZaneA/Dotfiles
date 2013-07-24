@@ -36,7 +36,9 @@
 ; Color theme
 (use-package color-theme
   :init
-  (load-theme 'soothe t))
+  (load-theme 'solarized-light t))
+  ;(load-theme 'solarized-dark t))
+  ;(load-theme 'soothe t))
   ;(load-theme 'birds-of-paradise-plus t))
 
 (setq-default line-spacing 3)
@@ -46,14 +48,20 @@
 (add-to-list 'default-frame-alist
              '(font . "SourceCodePro-10.5"))
 
-(use-package powerline
-  :init
-  (progn
-    (powerline-default-theme)
-    (set-face-attribute 'mode-line nil :box nil :font "SourceCodePro-9")
-    (set-face-attribute 'mode-line-inactive nil :box nil)
-    (set-face-attribute 'powerline-active1 nil :background "#282828")
-    (set-face-attribute 'powerline-active2 nil :background "#333333")))
+;(use-package powerline
+;  :init
+;  (progn
+;    (powerline-vim-theme)
+;    (set-face-attribute 'mode-line nil :box nil :font "SourceCodePro-9")
+;    (set-face-attribute 'mode-line-inactive nil :box nil)
+;    (set-face-attribute 'powerline-active1 nil :background "#282828")
+;    (set-face-attribute 'powerline-inactive1 nil :background "#282828")))
+
+(use-package nyan-mode
+  :init (nyan-mode t))
+
+(set-face-attribute 'mode-line nil :box nil :font "SourceCodePro-9")
+(set-face-attribute 'mode-line-inactive nil :box nil)
 
 ; Evil
 (use-package evil
@@ -135,6 +143,9 @@ adaptive-fill-mode is effective when joining."
 (setq-default evil-shift-width 2)
 (setq-default css-indent-offset 2)
 (setq-default js2-basic-offset 2)
+(setq-default c-basic-offset 2)
+
+(server-start)
 
 ; Remove hooks I don't like
 (use-package starter-kit
