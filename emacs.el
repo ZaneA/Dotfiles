@@ -18,7 +18,7 @@
         php-mode popup popwin pos-tip powerline r5rs
         rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
         slime soothe-theme starter-kit starter-kit-js starter-kit-ruby
-        surround use-package writegood-mode))
+        surround use-package web-mode writegood-mode))
 
 (package-initialize)
 
@@ -37,8 +37,8 @@
 ; Color theme
 (use-package color-theme
   :init
-  (load-theme 'solarized-light t))
-  ;(load-theme 'solarized-dark t))
+  ;(load-theme 'solarized-light t))
+  (load-theme 'solarized-dark t))
   ;(load-theme 'soothe t))
   ;(load-theme 'birds-of-paradise-plus t))
 
@@ -301,6 +301,21 @@ adaptive-fill-mode is effective when joining."
     (setq clean-buffer-list-delay-special 0)
 
     (run-with-idle-timer 300 t 'clean-buffer-list)))
+
+(use-package web-mode
+  :init
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (defun web-mode-hook ()
+      (font-lock-mode 0)
+      (setq web-mode-markup-indent-offset 2)
+      (setq web-mode-css-indent-offset 2)
+      (setq web-mode-code-indent-offset 2)
+      (setq web-mode-indent-style 2)
+      (setq web-mode-style-padding 1)
+      (setq web-mode-script-padding 1))
+    (add-hook 'web-mode-hook 'web-mode-hook)))
 
 ;; Custom methods
 
