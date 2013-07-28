@@ -82,6 +82,7 @@
 
     (define-key evil-normal-state-map "m" 'evil-narrow-indirect)
     (define-key evil-visual-state-map "m" 'evil-narrow-indirect)
+    (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
 
     (evil-define-operator evil-join-unfill (beg end)
       "Join the selected lines. Uses fill-region so that
