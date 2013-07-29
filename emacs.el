@@ -308,7 +308,9 @@ adaptive-fill-mode is effective when joining."
   :init
   (progn
     (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (setq web-mode-engines-alist '(("php" . "\\.phtml\\'")))
     (defun web-mode-hook ()
       (font-lock-mode 0)
       (setq web-mode-markup-indent-offset 2)
@@ -407,7 +409,7 @@ adaptive-fill-mode is effective when joining."
 ; From http://www.emacswiki.org/EmacsNiftyTricks
 (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
   "Prevent active processes query when quitting Emacs."
-  (cl-flet ((process-list ())) ad-do-it))
+  (flet ((process-list ())) ad-do-it))
 
 (defadvice quit-window (before quit-window-and-kill activate)
   "Kill buffer when quitting a window."
