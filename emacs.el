@@ -271,12 +271,12 @@ adaptive-fill-mode is effective when joining."
     (setq-default left-fringe-width 20)
     (fringe-helper-define 'git-gutter-fr:modified nil
       "........"
-      "XXXXXXXX"
-      "XXXXXXXX"
       "........"
+      "...XX..."
+      "..XXXX.."
+      "..XXXX.."
+      "...XX..."
       "........"
-      "XXXXXXXX"
-      "XXXXXXXX"
       "........")
     (global-git-gutter-mode t)))
 
