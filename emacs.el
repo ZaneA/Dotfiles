@@ -83,6 +83,15 @@
     (define-key evil-normal-state-map "m" 'evil-narrow-indirect)
     (define-key evil-visual-state-map "m" 'evil-narrow-indirect)
     (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
+    
+    ; An evil shortcut for commenting a region
+    (evil-define-operator evil-comment-region (beg end type)
+      "Comment a region or lines."
+      (interactive "<R>")
+      (comment-or-uncomment-region beg end))
+    
+    (define-key evil-normal-state-map "z" 'evil-comment-region)
+    (define-key evil-visual-state-map "z" 'evil-comment-region)
 
     (evil-define-operator evil-join-unfill (beg end)
       "Join the selected lines. Uses fill-region so that
@@ -149,6 +158,7 @@ adaptive-fill-mode is effective when joining."
 (setq-default c-basic-offset 2)
 
 (server-start)
+(edit-server-start)
 
 ; Remove hooks I don't like
 (use-package starter-kit
@@ -310,7 +320,8 @@ adaptive-fill-mode is effective when joining."
     (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-    (setq web-mode-engines-alist '(("php" . "\\.phtml\\'")))
+    (setq web-mode-engines-alist '(("php" . "\\.phtml\\'")
+                                   ("php" . "\\.module\\'")))
     (defun web-mode-hook ()
       (font-lock-mode 0)
       (setq web-mode-markup-indent-offset 2)
