@@ -13,9 +13,9 @@
       '(auto-complete bind-key birds-of-paradise-plus-theme
         chicken-scheme color-theme direx edit-server evil fold-this
         git-gutter git-gutter-fringe git-messenger golden-ratio
-        jade-mode jinja2-mode js2-mode kpm-list legalese less-css-mode
-        linum-relative magit markdown-mode nginx-mode nyan-mode org
-        php-mode popup popwin pos-tip powerline r5rs
+        jade-mode jedi jinja2-mode js2-mode kpm-list legalese
+        less-css-mode linum-relative magit markdown-mode nginx-mode
+        nyan-mode org php-mode popup popwin pos-tip powerline r5rs
         rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
         slime solarized-theme soothe-theme starter-kit starter-kit-js
         starter-kit-ruby surround use-package web-mode
@@ -111,6 +111,12 @@ adaptive-fill-mode is effective when joining."
 
     (define-key evil-normal-state-map "J" 'evil-join-unfill)
     (define-key evil-visual-state-map "J" 'evil-join-unfill)))
+
+(use-package jedi
+  :init
+  (progn
+    (add-hook 'python-mode-hook 'jedi:setup)
+    (setq jedi:complete-on-dot t)))
 
 (use-package fold-this
   :init
@@ -455,7 +461,6 @@ adaptive-fill-mode is effective when joining."
     (setq org-agenda-skip-deadline-if-done t)
     (setq org-agenda-skip-scheduled-if-done t)
     (setq org-return-follows-link t)
-    (setq org-startup-folded nil)
 
     ; Set up agenda
     (appt-activate t)
