@@ -12,14 +12,14 @@
 (setq packages
       '(auto-complete bind-key birds-of-paradise-plus-theme
         chicken-scheme color-theme direx edit-server evil fold-this
-        git-gutter git-gutter-fringe git-messenger golden-ratio
-        jade-mode jedi jinja2-mode js2-mode kpm-list legalese
-        less-css-mode linum-relative magit markdown-mode nginx-mode
-        nyan-mode org php-mode popup popwin pos-tip powerline r5rs
-        rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
-        slime solarized-theme soothe-theme starter-kit starter-kit-js
-        starter-kit-ruby surround use-package web-mode
-        writegood-mode))
+        git-gutter git-gutter-fringe git-messenger glsl-mode
+        golden-ratio jade-mode jedi jinja2-mode js2-mode kpm-list
+        legalese less-css-mode linum-relative magit markdown-mode
+        nginx-mode nyan-mode org php-mode popup popwin pos-tip
+        powerline r5rs rainbow-delimiters rainbow-mode scratch
+        scss-mode skewer-mode slime solarized-theme soothe-theme
+        starter-kit starter-kit-js starter-kit-ruby surround
+        use-package web-mode writegood-mode))
 
 (package-initialize)
 
