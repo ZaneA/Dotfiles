@@ -11,15 +11,15 @@
 
 (setq packages
       '(auto-complete bind-key birds-of-paradise-plus-theme
-        chicken-scheme color-theme direx edit-server evil fold-this
-        git-gutter git-gutter-fringe git-messenger golden-ratio
-        jade-mode jedi jinja2-mode js2-mode kpm-list legalese
-        less-css-mode linum-relative magit markdown-mode nginx-mode
-        nyan-mode org php-mode popup popwin pos-tip powerline r5rs
-        rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
-        slime solarized-theme soothe-theme starter-kit starter-kit-js
-        starter-kit-ruby surround use-package web-mode
-        writegood-mode))
+        chicken-scheme color-theme diminish direx edit-server evil
+        fold-this git-gutter git-gutter-fringe git-messenger
+        golden-ratio jade-mode jedi jinja2-mode js2-mode kpm-list
+        legalese less-css-mode linum-relative magit markdown-mode
+        nginx-mode nyan-mode org php-mode popup popwin pos-tip
+        powerline r5rs rainbow-delimiters rainbow-mode scratch
+        scss-mode skewer-mode slime solarized-theme soothe-theme
+        starter-kit starter-kit-js starter-kit-ruby surround
+        use-package web-mode writegood-mode))
 
 (package-initialize)
 
@@ -65,11 +65,23 @@
 (set-face-attribute 'mode-line nil :box nil :font "SourceCodePro-9")
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
+(setq-default mode-line-format '("%e" mode-line-front-space mode-line-modified (vc-mode vc-mode) mode-line-frame-identification mode-line-buffer-identification " " mode-line-position mode-line-modes mode-line-misc-info mode-line-end-spaces))
+
+(use-package diminish
+  :init
+  (let ((modes '(("auto-complete" . auto-complete-mode)
+                 ("undo-tree" . undo-tree-mode)
+                 ("fill" . auto-fill-function)
+                 ("eldoc" . eldoc-mode)
+                 ("git-gutter" . git-gutter-mode))))
+    (loop for mode in modes do (eval-after-load (car mode) `(diminish ',(cdr mode))))))
+
 ; Evil
 (use-package evil
   :init
   (progn
     (setq evil-default-cursor t)
+    (setq-default evil-mode-line-format 'nil)
     (evil-mode t)
 
     ; A nice evil shortcut for indirectly narrowing a region of the
