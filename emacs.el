@@ -12,7 +12,7 @@
 (setq packages
       '(auto-complete bind-key birds-of-paradise-plus-theme
         chicken-scheme color-theme diminish direx edit-server evil
-        fold-this git-gutter git-gutter-fringe git-messenger
+        fold-this git-gutter git-gutter-fringe git-messenger glsl-mode
         golden-ratio jade-mode jedi jinja2-mode js2-mode kpm-list
         legalese less-css-mode linum-relative magit markdown-mode
         nginx-mode nyan-mode org php-mode popup popwin pos-tip
