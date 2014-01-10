@@ -10,16 +10,15 @@
 (add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
 
 (setq packages
-      '(auto-complete bind-key birds-of-paradise-plus-theme
-        chicken-scheme color-theme diminish direx edit-server evil
-        fold-this git-gutter git-gutter-fringe git-messenger glsl-mode
-        golden-ratio jade-mode jedi jinja2-mode js2-mode kpm-list
-        legalese less-css-mode linum-relative magit markdown-mode
-        nginx-mode nyan-mode org php-mode popup popwin pos-tip
-        powerline r5rs rainbow-delimiters rainbow-mode scratch
-        scss-mode skewer-mode slime solarized-theme soothe-theme
-        starter-kit starter-kit-js starter-kit-ruby surround
-        use-package web-mode writegood-mode))
+      '(auto-complete bind-key bug-reference-github chicken-scheme
+        color-theme diminish direx edit-server elscreen evil fold-this
+        git-gutter git-gutter-fringe git-messenger glsl-mode
+        golden-ratio jade-mode jedi jinja2-mode js2-mode legalese
+        less-css-mode linum-relative magit markdown-mode nginx-mode
+        nyan-mode org php-mode popup popwin pos-tip powerline r5rs
+        rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
+        slime solarized-theme soothe-theme starter-kit starter-kit-js
+        starter-kit-ruby surround use-package web-mode writegood-mode))
 
 (package-initialize)
 
@@ -46,9 +45,10 @@
 (setq-default line-spacing 3)
 
 ; Font
-(set-frame-font "SourceCodePro-10.5")
+(set-frame-font "SourceCodePro-9.0")
 (add-to-list 'default-frame-alist
-             '(font . "SourceCodePro-10.5"))
+             '(font . "SourceCodePro-9.0"))
+             ;'(font . "SourceCodePro-10.5"))
 
 ;(use-package powerline
 ;  :init
@@ -66,6 +66,15 @@
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
 (setq-default mode-line-format '("%e" mode-line-front-space mode-line-modified (vc-mode vc-mode) mode-line-frame-identification mode-line-buffer-identification " " mode-line-position mode-line-modes mode-line-misc-info mode-line-end-spaces))
+
+(use-package bug-reference-github
+  :init
+  (progn
+    (defun add-bug-reference-to-web-mode-hook ()
+      (bug-reference-github-set-url-format)
+      (bug-reference-prog-mode 0)
+      (bug-reference-mode t))
+    (add-hook 'web-mode-hook #'add-bug-reference-to-web-mode-hook)))
 
 (use-package diminish
   :init
@@ -187,6 +196,15 @@ adaptive-fill-mode is effective when joining."
     (remove-hook 'prog-mode-hook 'idle-highlight-mode)
     (remove-hook 'text-mode-hook 'turn-on-auto-fill)))
 
+(use-package elscreen
+  :init
+  (progn
+    (set-face-attribute 'elscreen-tab-background-face nil :inherit 'default :background nil)
+    (setq-default elscreen-tab-display-control nil)
+    (setq-default elscreen-tab-display-kill-screen nil)
+    (elscreen-set-prefix-key "\C-a")
+    (elscreen-start)))
+
 (use-package ido
   :init
   (progn
@@ -204,24 +222,18 @@ adaptive-fill-mode is effective when joining."
 
 ;; Global modes
 
-(use-package kpm-list
-  :init
-  (defadvice kpm-list (after no-evil-kpm-list activate)
-    "Make kpm-list play along with evil-mode."
-    (with-current-buffer (get-buffer kpm-list-buffer-name)
-      (define-key evil-normal-state-local-map (kbd "<RET>") 'kpm-list-select-buffer)
-      (define-key evil-normal-state-local-map "q" 'quit-window)
-      (define-key evil-normal-state-local-map "o" 'kpm-list-select-other-window)
-      (define-key evil-normal-state-local-map "j" 'kpm-list-next-buffer)
-      (define-key evil-normal-state-local-map "k" 'kpm-list-prev-buffer)
-      (define-key evil-normal-state-local-map "d" 'kpm-list-kill-buffer))))
-
 (use-package surround
   :init
   (progn
     (define-globalized-minor-mode global-surround-mode
       surround-mode (lambda () (surround-mode t)))
     (global-surround-mode t)))
+
+(use-package purty-mode
+  :init
+   (progn
+     (purty-add-pair (purty-enhance-pair '("function" . "fn")))
+     (add-hook 'prog-mode-hook (lambda () (purty-mode)))))
 
 (use-package git-messenger
   :bind ("C-x v p" . git-messenger:popup-message)
@@ -247,6 +259,10 @@ adaptive-fill-mode is effective when joining."
 
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+
+(defun my-c-mode-common-hook ()
+  (local-set-key (kbd "C-c o") 'ff-find-other-file))
+(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
 (use-package chicken-scheme
   :mode ("\\.scm$" . scheme-mode)
@@ -338,8 +354,13 @@ adaptive-fill-mode is effective when joining."
     (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.module\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.install\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.twig\\'" . web-mode))
     (setq web-mode-engines-alist '(("php" . "\\.phtml\\'")
-                                   ("php" . "\\.module\\'")))
+                                   ("php" . "\\.module\\'")
+                                   ("php" . "\\.install\\'")
+                                   ))
     (defun web-mode-hook ()
       (font-lock-mode 0)
       (setq web-mode-markup-indent-offset 2)
@@ -348,6 +369,16 @@ adaptive-fill-mode is effective when joining."
       (setq web-mode-indent-style 2)
       (setq web-mode-style-padding 2)
       (setq web-mode-script-padding 2))
+    
+    (defun web-mode-indent-4 ()
+      (interactive)
+      (setq web-mode-markup-indent-offset 4)
+      (setq web-mode-css-indent-offset 4)
+      (setq web-mode-code-indent-offset 4)
+      (setq web-mode-indent-style 2)
+      (setq web-mode-style-padding 4)
+      (setq web-mode-script-padding 4))
+      
     (add-hook 'web-mode-hook 'web-mode-hook)))
 
 ;; Custom methods
@@ -380,8 +411,8 @@ adaptive-fill-mode is effective when joining."
 (defun intelligent-close ()
   "Intelligently close the frame or quit Emacs."
   (interactive)
-  (if (eq (car (visible-frame-list)) (selected-frame))
-      (if (> (length (visible-frame-list)) 1)
+  (if (eq (car (frame-list)) (selected-frame))
+      (if (> (length (frame-list)) 1)
           (delete-frame (selected-frame))
         (save-buffers-kill-emacs))
     (delete-frame (selected-frame))))
@@ -472,12 +503,7 @@ adaptive-fill-mode is effective when joining."
     (setq org-completion-use-ido t)
     (setq org-agenda-skip-deadline-if-done t)
     (setq org-agenda-skip-scheduled-if-done t)
-    (setq org-return-follows-link t)
-
-    ; Set up agenda
-    (appt-activate t)
-    (add-hook 'org-finalize-agenda-hook (lambda () (org-agenda-to-appt t)))
-    (org-agenda-list)))
+    (setq org-return-follows-link t)))
 
 (setq custom-file "~/.emacs-custom.el")
 (load custom-file)
