@@ -16,9 +16,10 @@
         golden-ratio jade-mode jedi jinja2-mode js2-mode legalese
         less-css-mode linum-relative magit markdown-mode nginx-mode
         nyan-mode org php-mode popup popwin pos-tip powerline r5rs
-        rainbow-delimiters rainbow-mode scratch scss-mode skewer-mode
-        slime solarized-theme soothe-theme starter-kit starter-kit-js
-        starter-kit-ruby surround use-package web-mode writegood-mode))
+        rainbow-delimiters rainbow-mode s scratch scss-mode
+        skewer-mode slime solarized-theme soothe-theme starter-kit
+        starter-kit-js starter-kit-ruby surround use-package web-mode
+        writegood-mode))
 
 (package-initialize)
 
@@ -151,6 +152,13 @@ adaptive-fill-mode is effective when joining."
     (define-key evil-visual-state-map "f" 'evil-fold-operator)
     ))
 
+(use-package s)
+
+(defun generate-key ()
+  "Generate a random key using openssl."
+  (interactive)
+  (insert (s-trim (shell-command-to-string "openssl rand -hex 10"))))
+
 ; Show current song in frame title
 (defun update-frame-title ()
   (setq frame-title-format
@@ -259,6 +267,8 @@ adaptive-fill-mode is effective when joining."
 
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 (defun my-c-mode-common-hook ()
   (local-set-key (kbd "C-c o") 'ff-find-other-file))
